@@ -1,0 +1,41 @@
+MODE:
+    test_list:
+        - train
+        - validation
+        - test_News
+        - test_Direct
+        - test_Auto   
+
+
+DATASET:
+    data_path: ../../Fake-News-Detection-Dataset/data/Part1 # News + Direct
+    bait_path: ../../main_generation/data-Auto/tfidf_avg_category_select # Auto
+    max_word_len: 512
+    sort: News_Auto
+
+
+TRAIN:
+    batch_size: 8
+    num_training_steps: 10000
+    accumulation_steps: 1
+    use_wandb: True
+
+    log_interval: 1
+    eval_interval: 1000
+
+    OPTIMIZER:
+        lr: 0.00001
+        weight_decay: 0.0005
+
+    SCHEDULER:
+        warmup_ratio: 0.1
+        use_scheduler: True
+
+TEST:
+    batch_size: 64
+    log_interval: 10
+
+RESULT:
+    savedir: ../saved_model
+
+
