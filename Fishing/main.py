@@ -15,7 +15,7 @@ from train import training, evaluate
 
 from log import setup_default_logging
 from model import BERT
-from dataset import AlpacaDataset
+from dataset import BaitDataset
 from torch.utils.data import DataLoader
 
 import pandas as pd
@@ -49,12 +49,12 @@ def run(cfg):
 
     #* make TRAIN data
     tokenizer = get_tokenizer() #monologg/kobert
-    trainset = AlpacaDataset(
+    trainset = BaitDataset(
             cfg['DATASET'],
             'train',
             tokenizer = tokenizer
         )
-    validset = AlpacaDataset(
+    validset = BaitDataset(
             cfg['DATASET'],
             'validation',
             tokenizer = tokenizer
@@ -135,7 +135,7 @@ def run(cfg):
         elif split == 'validation':
             dataset = validset
         else:
-            dataset = AlpacaDataset(
+            dataset = BaitDataset(
                 cfg['DATASET'],
                 split,
                 tokenizer = tokenizer
