@@ -44,9 +44,7 @@ class BaitDataset(Dataset):
             truncation=True
         )
 
-        label = 1 if ('Direct'or'Auto') in self.original_file_path[news_id] else 0
-        #print(self.original_file_path[news_id])
-        #print(label)
+        label = 1 if ('Direct') or ('Auto') in self.original_file_path[news_id] else 0
 
         doc = {}
         doc['input_ids']=encoding['input_ids'].flatten()

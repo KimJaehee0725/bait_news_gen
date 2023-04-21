@@ -62,67 +62,17 @@ def run(cfg):
     
     _logger.info('load raw data completely')
 
-    trainloader = DataLoader(
-        trainset,
-        batch_size = cfg['TRAIN']['batch_size']
-    )
-    validloader = DataLoader(
-        validset,
-        batch_size = cfg['TRAIN']['batch_size']
-    )
 
-    #* TRAIN -------------------
+    #* load MODEL -------------------
 
     model_config = AutoConfig.from_pretrained('monologg/kobert')
     model = BERT( # model.py class
         config          = model_config,
         num_classes     = 2
     )
-    #model.load_state_dict(torch.load('../saved_model/News_Direct/best_model.pt')) 
+    model.load_state_dict(torch.load('../saved_model/News_Direct/best_model.pt'))  #! 원하는 모델 경로로 수정
     model.to(device)
-
-    _logger.info('# of trainable params: {}'.format(np.sum([p.numel() if p.requires_grad else 0 for p in model.parameters()])))
-
-    # wandb
-    if cfg['TRAIN']['use_wandb']:
-        wandb.init(name='BERT', project='Bait-News-Detection', config=cfg)
-
-    # Set training
-    criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.AdamW(
-        params       = filter(lambda p: p.requires_grad, model.parameters()), 
-        lr           = cfg['TRAIN']['OPTIMIZER']['lr'], 
-         weight_decay = cfg['TRAIN']['OPTIMIZER']['weight_decay']
-    )
-
-    # # scheduler
-    if cfg['TRAIN']['SCHEDULER']['use_scheduler']:
-        scheduler = get_cosine_schedule_with_warmup(
-            optimizer, 
-            num_warmup_steps   = int(cfg['TRAIN']['num_training_steps'] * cfg['TRAIN']['SCHEDULER']['warmup_ratio']), 
-            num_training_steps = cfg['TRAIN']['num_training_steps'])
-    else:
-        scheduler = None
-
-
-    # #* fitting Model
-    _logger.info('TRAIN start')
     
-    train_model = training(
-        model              = model, 
-        num_training_steps = cfg['TRAIN']['num_training_steps'], 
-        trainloader        = trainloader, 
-        validloader        = validloader, 
-        criterion          = criterion, 
-        optimizer          = optimizer, 
-        scheduler          = scheduler,
-        log_interval       = cfg['TRAIN']['log_interval'],
-        eval_interval      = cfg['TRAIN']['eval_interval'],
-        savedir            = savedir,
-        accumulation_steps = cfg['TRAIN']['accumulation_steps'],
-        device             = device,
-        use_wandb          = cfg['TRAIN']['use_wandb']
-    )
 
     #* TEST -------------------
     _logger.info('TEST start')
@@ -147,8 +97,11 @@ def run(cfg):
         )
 
         #* testing Model
+        
+        criterion = torch.nn.CrossEntropyLoss()
+
         metrics, exp_results = evaluate(
-            model        = train_model, 
+            model        = model, 
             dataloader   = testloader, 
             criterion    = criterion,
             log_interval = cfg['TEST']['log_interval'],
