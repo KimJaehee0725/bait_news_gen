@@ -2,9 +2,9 @@
 
 <data>
 1. train
-- News + Direct
-- News + Auto
-- News + Direct + Auto
+- News_Direct
+- News_Auto
+- News_Direct_Auto
 
 2. test
 - News
@@ -31,3 +31,6 @@ python main.py --yaml_config ./configs/{데이터명}.yaml
 3. line 129에 *criterion = torch.nn.CrossEntropyLoss()* 추가
 4. line 151에 train_model을 model로 변경
 5. python main.py --yaml_config ./configs/News_Direct.yaml 실행 → test부터 시작됨
+
+--->> forTest.py 파일 실행으로 해결. 사용시, 원하는 학습 모델 경로로 수정 필요**
+
