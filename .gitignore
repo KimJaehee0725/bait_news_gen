@@ -1,1 +1,4 @@
 saved_model/
+Fishing/wandb/*
+Fishing/configs/*
+*/__pycache__/*
