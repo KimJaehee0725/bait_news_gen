@@ -21,8 +21,9 @@
 ---------------
 
 <실행>
+```
 python main.py --yaml_config ./configs/{데이터명}.yaml
-
+```
 ---------------
 - train만 되고 test가 안된 경우
 1.  main.py 에서 line 86 ~ 124까지 주석처리
