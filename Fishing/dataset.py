@@ -10,18 +10,9 @@ from typing import Union, Tuple
 import logging
 import random
 
-## 데이터셋 클래스 사용 순서 
-### 1. config를 통해 init
-### 2. load_dataset()을 통해 데이터셋 로드 (glob을 통해 데이터셋 경로를 불러옴)
-### 3. original_title, original_body, original_news_id만 받아옴
-### 4. get_item을 통해 가져올 index 입력
-### 5. 해당 index의 news_id를 통해 original_title, original_body에서 해당 뉴스의 제목, 본문을 가져옴
-### 6. 해당 뉴스의 제목, 본문을 tokenizer를 통해 encoding
-### 7. encoding된 데이터를 return
-
 _logger = logging.getLogger('train')
 
-class AlpacaDataset(Dataset):
+class BaitDataset(Dataset):
     def __init__(self, config, split, tokenizer):
         
         self.tokenizer = tokenizer
@@ -53,9 +44,7 @@ class AlpacaDataset(Dataset):
             truncation=True
         )
 
-        label = 1 if ('Direct'or'Auto') in self.original_file_path[news_id] else 0
-        #print(self.original_file_path[news_id])
-        #print(label)
+        label = 1 if ('Direct') or ('Auto') in self.original_file_path[news_id] else 0
 
         doc = {}
         doc['input_ids']=encoding['input_ids'].flatten()

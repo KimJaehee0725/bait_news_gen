@@ -1,4 +1,9 @@
 saved_model/
+<<<<<<< HEAD
 Fishing/wandb/*
 Fishing/configs/*
 */__pycache__/*
+=======
+wandb/
+__pycache__/
+>>>>>>> 9cd4ee2ceeaaecc2a128f7dc85ad5accaac97013
