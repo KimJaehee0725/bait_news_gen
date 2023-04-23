@@ -20,9 +20,6 @@ from torch.utils.data import DataLoader
 
 import pandas as pd
 
-_logger = logging.getLogger('train')
-
-
 def torch_seed(random_seed: int):
     torch.manual_seed(random_seed)
     torch.cuda.manual_seed(random_seed)
@@ -48,7 +45,7 @@ def run(cfg):
     os.makedirs(savedir, exist_ok=True)
 
     #* make TRAIN data
-    tokenizer = get_tokenizer() #monologg/kobert
+    tokenizer = get_tokenizer() # monologg/kobert
     trainset = BaitDataset(
             cfg['DATASET'],
             'train',
@@ -64,11 +61,13 @@ def run(cfg):
 
     trainloader = DataLoader(
         trainset,
-        batch_size = cfg['TRAIN']['batch_size']
+        batch_size = cfg['TRAIN']['batch_size'],
+        shuffle = True
     )
     validloader = DataLoader(
         validset,
-        batch_size = cfg['TRAIN']['batch_size']
+        batch_size = cfg['TEST']['batch_size'],
+        shuffle = False
     )
 
     #* TRAIN -------------------
@@ -168,11 +167,22 @@ def run(cfg):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
-    parser.add_argument('--yaml_config', type=str, default=None, help='exp config file')    
+    parser.add_argument('--yaml_config', type=str, default='configs/News_Auto.yaml', help='exp config file')    
 
     args = parser.parse_args()
+    cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
+
+    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['sort'])
+    os.makedirs(savedir, exist_ok=True)
+    logging.basicConfig(
+        format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
+        datefmt='%m/%d/%Y %H:%M:%S',
+        level=logging.INFO,
+        filename=os.path.join(savedir, 'Logs.log')
+        )
+
+    _logger = logging.getLogger(__name__)
 
     # config
-    cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
 
     run(cfg)

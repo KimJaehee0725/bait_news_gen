@@ -9,6 +9,7 @@ import numpy as np
 #from utils import convert_device
 from sklearn.metrics import roc_auc_score, f1_score, recall_score, precision_score, confusion_matrix
 import transformers
+from tqdm import tqdm
 
 _logger = logging.getLogger('train')
 transformers.logging.set_verbosity_error()
@@ -46,7 +47,7 @@ def training(model, num_training_steps: int, trainloader, validloader, criterion
     data_time_m = AverageMeter()
     acc_m = AverageMeter()
     losses_m = AverageMeter()
-    best_acc = 0
+    best_f1 = -10_000
     
     end = time.time()
     
@@ -123,7 +124,7 @@ def training(model, num_training_steps: int, trainloader, validloader, criterion
                         wandb.log(eval_log, step=step)
 
                     # checkpoint
-                    if best_acc < eval_metrics['acc']:
+                    if best_f1 < eval_metrics['f1']:
                         # save best score
                         state = {'best_step':step}
                         state.update(eval_log)
@@ -132,9 +133,9 @@ def training(model, num_training_steps: int, trainloader, validloader, criterion
                         # save best model
                         torch.save(model.state_dict(), os.path.join(savedir, f'best_model.pt'))
                         
-                        _logger.info('Best Accuracy {0:.3%} to {1:.3%}'.format(best_acc, eval_metrics['acc']))
+                        _logger.info('Best F1 {0:.3%} to {1:.3%}'.format(best_f1, eval_metrics['f1']))
 
-                        best_acc = eval_metrics['acc']
+                        best_f1 = eval_metrics['acc']
 
             end = time.time()
 
@@ -147,7 +148,7 @@ def training(model, num_training_steps: int, trainloader, validloader, criterion
     # save best model
     torch.save(model.state_dict(), os.path.join(savedir, f'latest_model.pt'))
 
-    _logger.info('Best Metric: {0:.3%} (step {1:})'.format(best_acc, state['best_step']))
+    _logger.info('Best Metric: {0:.3%} (step {1:})'.format(best_f1, state['best_step']))
 
     return model
     
@@ -162,7 +163,7 @@ def evaluate(model, dataloader, criterion, log_interval: int, device: str = 'cpu
 
     model.eval()
     with torch.no_grad():
-        for idx, (inputs, targets) in enumerate(dataloader):
+        for idx, (inputs, targets) in tqdm(enumerate(dataloader), desc = 'EVAL : ', total = len(dataloader)):
             inputs, targets = convert_device(inputs, device), targets.to(device)
             
             # predict
@@ -183,27 +184,13 @@ def evaluate(model, dataloader, criterion, log_interval: int, device: str = 'cpu
             total_preds.extend(preds.cpu().tolist())
             total_targets.extend(targets.cpu().tolist())
             
-            if idx % log_interval == 0 and idx != 0: 
-                _logger.info('TEST [%d/%d]: Loss: %.3f | Acc: %.3f%% [%d/%d]' % 
-                            (idx+1, len(dataloader), total_loss/(idx+1), 100.*correct/total, correct, total))
-                
-    # metrics = calc_metrics(
-    #     y_true  = total_targets,
-    #     y_score = np.array(total_score)[:,1],
-    #     y_pred  = total_preds
-    # )
-    
-    # metrics.update([('acc',correct/total), ('loss',total_loss/len(dataloader))])
-
-    # _logger.info('TEST: Loss: %.3f | Acc: %.3f%% | AUROC: %.3f%% | F1-Score: %.3f%% | Recall: %.3f%% | Precision: %.3f%%' % 
-    #             (metrics['loss'], 100.*metrics['acc'], 100.*metrics['auroc'], 100.*metrics['f1'], 100.*metrics['recall'], 100.*metrics['precision']))
-    
     metrics = {
+        'f1'  : f1_score(total_targets, total_preds),
         'acc' : correct/total,
         'loss': total_loss/len(dataloader)
     }
 
-    _logger.info('TEST: Loss: %.3f | Acc: %.3f%%' % (metrics['loss'], 100.*metrics['acc']))
+    _logger.info('TEST: Loss: %.3f | Acc: %.3f%% | F1: %.3f' % (metrics['loss'], 100.*metrics['acc'], 100.*metrics['f1']))
 
     if sample_check:
         results = {

@@ -8,8 +8,8 @@ MODE:
 
 
 DATASET:
-    data_path: ../../Fake-News-Detection-Dataset/data/Part1 # News + Direct
-    bait_path: ../../main_generation/data-Auto/tfidf_avg_category_select # Auto
+    data_path: ../data/original # News + Direct
+    bait_path: ../data/generated/tfidf_avg_category_select # Auto
     max_word_len: 512
     sort: News_Direct
 
@@ -20,7 +20,7 @@ TRAIN:
     accumulation_steps: 1
     use_wandb: True
 
-    log_interval: 1
+    log_interval: 50
     eval_interval: 1000
 
     OPTIMIZER:
@@ -32,7 +32,7 @@ TRAIN:
         use_scheduler: True
 
 TEST:
-    batch_size: 64
+    batch_size: 128
     log_interval: 10
 
 RESULT:
