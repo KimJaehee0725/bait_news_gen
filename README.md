@@ -73,3 +73,21 @@ python forTest.py --yaml_config ./configs/{데이터명}.yaml
 5. 학습 모델 테스트
 6. 테스트 결과 저장
 
+
+---------------
+## 예시
+
+#### News_Direct 데이터로 학습 시키고 싶다면?
+```
+python main.py --yaml_config ./configs/News_Direct.yaml
+```
+(config 내 sort는 News_Direct로 되어 있어야 함)
+
+
+#### News_Direct 데이터로 학습 시킨 모델에 새로운 Auto 데이터를 테스트 하고 싶다면?
+→ 새로운 config 파일 생성 필요
+
+bait_path : 새로운 Auto 경로로 수정 (나머지 항목 수정 필요x)
+```
+python forTest.py --yaml_config ./configs/{새로운 config}.yaml
+```
