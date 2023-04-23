@@ -1,0 +1,11 @@
+datadir: '../data/original' 
+savedir: '../data/generated'
+METHOD:
+  name: 'tfidf'
+  query : 'title'
+  key : 'title-content' # + : 함께 처리 - : 별도로 처리 후 agg 이용(agg : avg)
+  fit_data : 'title+content'
+  extract : 'all'
+  select_name: 'tfidf_avg_category_select'
+
+SEED: 42
