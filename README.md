@@ -40,7 +40,7 @@
 
 
 
-
+- 기본 실행
 ```
 python main.py --yaml_config ./configs/{데이터명}.yaml
 ```
