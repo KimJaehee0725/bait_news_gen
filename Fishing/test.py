@@ -111,7 +111,7 @@ def run(cfg):
                 
         # save exp result
         exp_results = pd.concat([pd.DataFrame({'filename':list(dataset.original_file_path.values())}), pd.DataFrame(exp_results)], axis=1)
-        exp_results['label'] = exp_results['filename'].apply(lambda x: 1 if ('Direct'or'Auto') in x else 0)
+        exp_results['label'] = exp_results['filename'].apply(lambda x: 1 if ('Direct' in x) or ("Auto" in x) else 0)
         exp_results.to_csv(os.path.join(savedir, f'exp_results_{split}.csv'), index=False)
 
         # save result metrics
@@ -121,17 +121,20 @@ def run(cfg):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
-    parser.add_argument('--base_config', type=str, default=None, help='exp config file')    
-    parser.add_argument('--bait_path', type=str, default=None, help='bait path')
-    parser.add_argument('--sort', type=str, default=None, help='sort')
-    parser.add_argument('--saved_model_path', type=str, default=None, help='saved_model_path')
+    parser.add_argument('--base_config', type=str, default='configs/base_config.yaml', help='exp config file')    
+    parser.add_argument('--bait_path', type=str, default='../data/generated/tfidf_avg_category_select', help='bait path')
+    parser.add_argument('--sort', type=str, default=None, help='News_Direct')
+    parser.add_argument('--saved_model_path', type=str, default='../saved_model/News_Direct/best_model.pt', help='saved_model_path')
     args = parser.parse_args()
 
     # config
-    cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
+    cfg = yaml.load(open(args.base_config,'r'), Loader=yaml.FullLoader)
     cfg['DATASET']['bait_path'] = args.bait_path
     cfg['DATASET']['sort'] = args.sort
     cfg['TEST']['saved_model_path'] = args.saved_model_path
+
+    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_path'].split('/')[-1], cfg['DATASET']['sort'])
+    os.makedirs(savedir, exist_ok=True)
 
     print("Config:")
     print(json.dumps(cfg, indent=2))
