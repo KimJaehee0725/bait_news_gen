@@ -181,8 +181,8 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
     parser.add_argument('--base_config', type=str, default='configs/base_config.yaml', help='exp config file')    
     parser.add_argument('--bait_path', type=str, default='../data/generated/tfidf_avg_category_select')
-    parser.add_argument('--sort', type=str, default='News_Auto')
-    parser.add_argument('--saved_model_path', type=str, default='../saved_model/News_Auto/best_model.pt')
+    parser.add_argument('--sort', type=str, default='News_Direct')
+    parser.add_argument('--saved_model_path', type=str, default='../saved_model/News_Direct/best_model.pt')
 
     args = parser.parse_args()
 
