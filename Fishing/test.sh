@@ -1,4 +1,4 @@
-bait_path='../data/generated/tfidf_avg_category_select'
+bait_path='../../main_generation/data-Auto/tfidf_avg_category_select'
 sort="News_Direct"
 saved_model_path='../saved_model/News_Direct/best_model.pt'
 

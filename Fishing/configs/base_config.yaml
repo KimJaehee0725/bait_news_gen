@@ -1,14 +1,13 @@
 MODE:
     test_list:
-        - train
-        - validation
-        - test_News
-        - test_Direct
-        - test_Auto   
+        # - train
+        # - validation
+        - test_News_Direct
+        - test_News_Auto  
 
 
 DATASET:
-    data_path: ../data/original # News + Direct
+    data_path: ../../Fake-News-Detection-Dataset/data/Part1 # News + Direct ../data/original
     bait_path: None
     max_word_len: 512
     sort: News_Auto

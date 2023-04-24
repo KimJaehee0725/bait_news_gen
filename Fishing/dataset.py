@@ -64,7 +64,7 @@ class BaitDataset(Dataset):
             data_name = sort.split(sep='_') #['News', 'Direct']
         else:
             data_name = split.split(sep='_') 
-            data_name.pop(0) #['test','News'] -> ['News'] 리스트 형태 유지
+            data_name.pop(0) #['test','News', 'Direct'] -> ['News','Direct'] 리스트 형태 유지
             split = 'test'
 
         _logger.info(f"Get Category Ratio and Stratified Sampling")

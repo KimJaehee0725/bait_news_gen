@@ -77,55 +77,63 @@ def run(cfg):
         config          = model_config,
         num_classes     = 2
     )
-    #model.load_state_dict(torch.load('../saved_model/News_Direct/best_model.pt')) 
-    model.to(device)
+   
+    if cfg['TEST']['saved_model_path'] != 'None':
+        model.load_state_dict(torch.load(cfg['TEST']['saved_model_path']))
+        model.to(device)
 
-    _logger.info('# of trainable params: {}'.format(np.sum([p.numel() if p.requires_grad else 0 for p in model.parameters()])))
+        criterion = torch.nn.CrossEntropyLoss()
+        train_model = model
 
-    # wandb
-    if cfg['TRAIN']['use_wandb']:
-        wandb.init(
-            name=os.path.join(cfg['DATASET']['bait_path'].split('/')[-1], cfg['DATASET']['sort']), 
-            project='Bait-News-Detection', 
-            config=cfg
-            )
-
-    # Set training
-    criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.AdamW(
-        params       = filter(lambda p: p.requires_grad, model.parameters()), 
-        lr           = cfg['TRAIN']['OPTIMIZER']['lr'], 
-         weight_decay = cfg['TRAIN']['OPTIMIZER']['weight_decay']
-    )
-
-    # # scheduler
-    if cfg['TRAIN']['SCHEDULER']['use_scheduler']:
-        scheduler = get_cosine_schedule_with_warmup(
-            optimizer, 
-            num_warmup_steps   = int(cfg['TRAIN']['num_training_steps'] * cfg['TRAIN']['SCHEDULER']['warmup_ratio']), 
-            num_training_steps = cfg['TRAIN']['num_training_steps'])
     else:
-        scheduler = None
+        model.to(device)
+
+        _logger.info('# of trainable params: {}'.format(np.sum([p.numel() if p.requires_grad else 0 for p in model.parameters()])))
+
+        # wandb
+        if cfg['TRAIN']['use_wandb']:
+            wandb.init(
+                name=os.path.join(cfg['DATASET']['bait_path'].split('/')[-1], cfg['DATASET']['sort']), 
+                project='Bait-News-Detection', 
+                config=cfg
+                )
+
+        # Set training
+        criterion = torch.nn.CrossEntropyLoss()
+        optimizer = torch.optim.AdamW(
+            params       = filter(lambda p: p.requires_grad, model.parameters()), 
+            lr           = cfg['TRAIN']['OPTIMIZER']['lr'], 
+            weight_decay = cfg['TRAIN']['OPTIMIZER']['weight_decay']
+        )
+
+        # # scheduler
+        if cfg['TRAIN']['SCHEDULER']['use_scheduler']:
+            scheduler = get_cosine_schedule_with_warmup(
+                optimizer, 
+                num_warmup_steps   = int(cfg['TRAIN']['num_training_steps'] * cfg['TRAIN']['SCHEDULER']['warmup_ratio']), 
+                num_training_steps = cfg['TRAIN']['num_training_steps'])
+        else:
+            scheduler = None
 
 
-    # #* fitting Model
-    _logger.info('TRAIN start')
-    
-    train_model = training(
-        model              = model, 
-        num_training_steps = cfg['TRAIN']['num_training_steps'], 
-        trainloader        = trainloader, 
-        validloader        = validloader, 
-        criterion          = criterion, 
-        optimizer          = optimizer, 
-        scheduler          = scheduler,
-        log_interval       = cfg['TRAIN']['log_interval'],
-        eval_interval      = cfg['TRAIN']['eval_interval'],
-        savedir            = savedir,
-        accumulation_steps = cfg['TRAIN']['accumulation_steps'],
-        device             = device,
-        use_wandb          = cfg['TRAIN']['use_wandb']
-    )
+        # #* fitting Model
+        _logger.info('TRAIN start')
+        
+        train_model = training(
+            model              = model, 
+            num_training_steps = cfg['TRAIN']['num_training_steps'], 
+            trainloader        = trainloader, 
+            validloader        = validloader, 
+            criterion          = criterion, 
+            optimizer          = optimizer, 
+            scheduler          = scheduler,
+            log_interval       = cfg['TRAIN']['log_interval'],
+            eval_interval      = cfg['TRAIN']['eval_interval'],
+            savedir            = savedir,
+            accumulation_steps = cfg['TRAIN']['accumulation_steps'],
+            device             = device,
+            use_wandb          = cfg['TRAIN']['use_wandb']
+        )
 
     #* TEST -------------------
     _logger.info('TEST start')
@@ -174,12 +182,14 @@ if __name__=='__main__':
     parser.add_argument('--base_config', type=str, default='configs/base_config.yaml', help='exp config file')    
     parser.add_argument('--bait_path', type=str, default='../data/generated/tfidf_avg_category_select')
     parser.add_argument('--sort', type=str, default='News_Auto')
+    parser.add_argument('--saved_model_path', type=str, default='../saved_model/News_Auto/best_model.pt')
 
     args = parser.parse_args()
 
     cfg = yaml.load(open(args.base_config,'r'), Loader=yaml.FullLoader)
     cfg['DATASET']['bait_path'] = args.bait_path
     cfg['DATASET']['sort'] = args.sort
+    cfg['TEST']['saved_model_path'] = args.saved_model_path
 
     savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_path'].split('/')[-1], cfg['DATASET']['sort'])
     os.makedirs(savedir, exist_ok=True)

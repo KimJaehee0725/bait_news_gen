@@ -37,6 +37,5 @@ TEST:
 
 RESULT:
     savedir: ../saved_model
-    basedir: ../saved_model/Base
 
 
