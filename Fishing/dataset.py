@@ -82,12 +82,13 @@ class BaitDataset(Dataset):
         news_file_path = {}
         for num, filename in tqdm(enumerate(news_data_path), desc = f'Load Data {split} | News : ', total=len(news_data_path)) :
             news = json.load(open(filename,'r'))
-            news_id = news['sourceDataInfo']['newsID'] #데이터명
+            news_id = news['sourceDataInfo']['newsID'] + "_news" #데이터명
             news_title[news_id] = news['sourceDataInfo']['newsTitle']
             news_body[news_id] = news['sourceDataInfo']['newsContent']
             news_title_num[num] = news_id
             news_file_path[news_id] = filename
 
+        news_len = len(news_title_num)
         # get bait data
         bait_title = {}
         bait_body = {}
@@ -95,26 +96,11 @@ class BaitDataset(Dataset):
         bait_file_path = {}
         for num, filename in tqdm(enumerate(bait_data_path), desc = f'Load Data {split} | Bait : ', total=len(bait_data_path)) :
             news = json.load(open(filename,'r'))
-            news_id = news['sourceDataInfo']['newsID'] #데이터명
+            news_id = news['sourceDataInfo']['newsID'] + "_bait" #데이터명
             bait_title[news_id] = news['labeledDataInfo']['newTitle']
             bait_body[news_id] = news['sourceDataInfo']['newsContent']
-            bait_title_num[num] = news_id
+            bait_title_num[num + news_len] = news_id
             bait_file_path[news_id] = filename
-
-        # original_title = {}
-        # original_body = {}
-        # original_title_num = {}
-        # original_file_path = {}
-        # for num, filename in tqdm(enumerate(data_path), desc = f'Load Data {split} : ') :
-        #     news = json.load(open(filename,'r'))
-        #     news_id = news['sourceDataInfo']['newsID'] #데이터명
-        #     if "News" in data_path : 
-        #         original_title[news_id] = news['sourceDataInfo']['newsTitle']
-        #     else :
-        #         original_title[news_id] = news['labeledDataInfo']['newTitle']
-        #     original_body[news_id] = news['sourceDataInfo']['newsContent']
-        #     original_title_num[num] = news_id
-        #     original_file_path[news_id] = filename
 
         total_title = {**news_title, **bait_title}
         total_body = {**news_body, **bait_body}
