@@ -84,7 +84,11 @@ def run(cfg):
 
     # wandb
     if cfg['TRAIN']['use_wandb']:
-        wandb.init(name='BERT', project='Bait-News-Detection', config=cfg)
+        wandb.init(
+            name=os.path.join(cfg['DATASET']['bait_path'].split('/')[-1], cfg['DATASET']['sort']), 
+            project='Bait-News-Detection', 
+            config=cfg
+            )
 
     # Set training
     criterion = torch.nn.CrossEntropyLoss()
@@ -167,12 +171,17 @@ def run(cfg):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
-    parser.add_argument('--yaml_config', type=str, default='configs/News_Auto.yaml', help='exp config file')    
+    parser.add_argument('--base_config', type=str, default='configs/base_config.yaml', help='exp config file')    
+    parser.add_argument('--bait_path', type=str, default=None, help='bait_path')
+    parser.add_argument('--sort', type=str, default=None, help='sort')
 
     args = parser.parse_args()
-    cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
 
-    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['sort'])
+    cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
+    cfg['DATASET']['bait_path'] = args.bait_path
+    cfg['DATASET']['sort'] = args.sort
+
+    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_path'].split('/')[-1], cfg['DATASET']['sort'])
     os.makedirs(savedir, exist_ok=True)
     logging.basicConfig(
         format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
@@ -184,5 +193,6 @@ if __name__=='__main__':
     _logger = logging.getLogger(__name__)
 
     # config
-
+    print('Config:')
+    print(json.dumps(cfg, indent=2))
     run(cfg)

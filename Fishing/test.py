@@ -70,7 +70,7 @@ def run(cfg):
         config          = model_config,
         num_classes     = 2
     )
-    model.load_state_dict(torch.load('../saved_model/News_Direct/best_model.pt'))  #! 원하는 모델 경로로 수정
+    model.load_state_dict(torch.load(cfg['TEST']['saved_model_path'])) # load pre-trained model
     model.to(device)
     
 
@@ -121,11 +121,18 @@ def run(cfg):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
-    parser.add_argument('--yaml_config', type=str, default=None, help='exp config file')    
-
+    parser.add_argument('--base_config', type=str, default=None, help='exp config file')    
+    parser.add_argument('--bait_path', type=str, default=None, help='bait path')
+    parser.add_argument('--sort', type=str, default=None, help='sort')
+    parser.add_argument('--saved_model_path', type=str, default=None, help='saved_model_path')
     args = parser.parse_args()
 
     # config
     cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
+    cfg['DATASET']['bait_path'] = args.bait_path
+    cfg['DATASET']['sort'] = args.sort
+    cfg['TEST']['saved_model_path'] = args.saved_model_path
 
+    print("Config:")
+    print(json.dumps(cfg, indent=2))
     run(cfg)
