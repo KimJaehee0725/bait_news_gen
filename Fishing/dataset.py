@@ -11,6 +11,10 @@ import logging
 import random
 from tqdm import tqdm
 
+TRAIN_DATA_SIZE = 40_000
+VAL_DATA_SIZE = 35_000
+TEST_DATA_SIZE = 35_000
+
 _logger = logging.getLogger('train')
 
 class BaitDataset(Dataset):
@@ -63,14 +67,27 @@ class BaitDataset(Dataset):
             data_name.pop(0) #['test','News'] -> ['News'] 리스트 형태 유지
             split = 'test'
 
+        _logger.info(f"Get Category Ratio and Stratified Sampling")
+        train_category_num, val_category_num, test_category_num = self.get_category_ratio(os.path.join(data_dir, 'train', 'News'))
+
         data_path = []
         for data in data_name:
             if data == 'Auto':
                 train_dir = bait_dir
             else:
                 train_dir = data_dir
-        
-            data_path = data_path + glob(os.path.join(train_dir, split, data, '*/*'))                             
+
+            if split == 'train':
+                for cate in list(train_category_num.keys()):
+                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:train_category_num[cate]]
+            elif split == 'validation':
+                for cate in list(val_category_num.keys()):
+                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:val_category_num[cate]]
+            elif split == 'test':
+                for cate in list(test_category_num.keys()):
+                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:test_category_num[cate]]
+
+            # data_path = data_path + glob(os.path.join(train_dir, split, data, '*/*'))                             
 
         news_data_path = [path for path in data_path if 'News' in path]
         bait_data_path = [path for path in data_path if 'News' not in path]
@@ -109,3 +126,21 @@ class BaitDataset(Dataset):
 
         return total_title, total_body, total_title_num, total_file_path
 
+    def get_category_ratio(self, path_to_category) -> Tuple[dict, dict, dict]:
+        category = {}
+        categories = os.listdir(path_to_category)
+        for cat in categories:
+            category[cat] = len(os.listdir(os.path.join(path_to_category, cat)))
+
+        ## get ratio
+        total = sum(category.values())
+        for cat in category:
+            category[cat] = category[cat]/total
+        
+        _logger.info(f"Category Ratio : {category}")
+        
+        train_category_num = {cat : int(TRAIN_DATA_SIZE * category[cat]) for cat in category}
+        val_category_num = {cat : int(VAL_DATA_SIZE * category[cat]) for cat in category}
+        test_category_num = {cat : int(TEST_DATA_SIZE * category[cat]) for cat in category}
+
+        return train_category_num, val_category_num, test_category_num

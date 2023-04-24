@@ -172,12 +172,12 @@ def run(cfg):
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
     parser.add_argument('--base_config', type=str, default='configs/base_config.yaml', help='exp config file')    
-    parser.add_argument('--bait_path', type=str, default=None, help='bait_path')
-    parser.add_argument('--sort', type=str, default=None, help='sort')
+    parser.add_argument('--bait_path', type=str, default='../data/generated/tfidf_avg_category_select')
+    parser.add_argument('--sort', type=str, default='News_Auto')
 
     args = parser.parse_args()
 
-    cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
+    cfg = yaml.load(open(args.base_config,'r'), Loader=yaml.FullLoader)
     cfg['DATASET']['bait_path'] = args.bait_path
     cfg['DATASET']['sort'] = args.sort
 
