@@ -41,7 +41,7 @@ def run(cfg):
     _logger.info('Device: {}'.format(device))
 
     #* save directory
-    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['sort'])
+    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_path'].split('/')[-1], cfg['DATASET']['sort'])
     os.makedirs(savedir, exist_ok=True)
 
     #* make TRAIN data
