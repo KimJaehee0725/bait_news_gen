@@ -1,24 +1,31 @@
 # bait_news_gen
 
 ---------------
-
-## data
-
-1. train
-- News_Direct
-- News_Auto
-- News_Direct_Auto
-
-2. test
-- News
-- Direct
-- Auto
+## data directory 구성
+- data 
+    - train
+        - News
+        - Direct
+        - Auto
+    - validation
+        - train과 구성 동일
+    - test
+        - train과 구성 동일
+- data-auto
+    - method 이름
+        - train
+            - Auto
+        - validation
+            - Auto
+        - test
+            - Auto
 
 ## py파일
 - main.py
 - dataset.py
 - model.py
 - train.py
+- test.py
 - log.py
 
 ---------------
@@ -41,6 +48,13 @@
 
 
 #### 기본 실행
+- main.sh에서 bait_path와 sort_list수정해서 사용하면 됩니다.
+    - bait_path : auto로 만들어진 가짜뉴스 데이터 폴더
+    - sort_list : News_Auto(auto로 BERT 학습), News_Direct(direct로 BERT 학습)
+```
+bash main.sh
+```
+
 ```
 python main.py --base_config ./configs/{데이터명}.yaml
 ```
