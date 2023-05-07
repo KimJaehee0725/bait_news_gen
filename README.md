@@ -1,7 +1,6 @@
 # bait_news_gen
 
----------------
-## data directory 구성
+## 🍀 data directory 구성
 - data 
     - train
         - News
@@ -20,7 +19,7 @@
         - test
             - Auto
 
-## py파일
+## 💚 py파일
 - main.py
 - dataset.py
 - model.py
@@ -28,9 +27,8 @@
 - test.py
 - log.py
 
----------------
 
-## 실행
+## 🔫 실행
 
 #### < 실행 전 확인 사항 >
 1.  데이터 폴더명 변경
@@ -68,7 +66,7 @@ python test.py --base_config ./configs/{데이터명}.yaml
 
 ---------------
 
-## 동작
+## 🍈 동작
 ### train + test
 1. python main.py --base_config ./configs/{데이터명}.yaml 실행
 2. config 파일 내 data_path와 bait_path에서 데이터 로드
@@ -89,7 +87,7 @@ python test.py --base_config ./configs/{데이터명}.yaml
 
 
 ---------------
-## 예시
+## 🍏 예시
 
 #### News_Direct 데이터로 학습 시키고 싶다면?
 ```
