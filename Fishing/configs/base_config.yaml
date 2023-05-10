@@ -7,7 +7,7 @@ MODE:
 
 
 DATASET:
-    data_path: ../../Fake-News-Detection-Dataset/data/Part1 # News + Direct ../data/original
+    data_path: ../data/Part1 # News + Direct ../data/original
     bait_path: None
     max_word_len: 512
     sort: News_Auto

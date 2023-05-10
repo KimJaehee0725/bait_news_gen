@@ -9,7 +9,7 @@ MODE:
 
 DATASET:
     data_path: ../data/original # News + Direct
-    bait_path: ../data/generated/tfidf_avg_category_select # Auto
+    bait_path: ../data/generated/false-negative # Auto
     max_word_len: 512
     sort: News_Auto
 

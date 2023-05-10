@@ -1,0 +1,11 @@
+datadir: '../data/original'
+savedir: '../data/generated'
+METHOD:
+  name: 'false-negative'
+  query : 'title'
+  key : 'title-content' # + : 함께 처리 - : 별도로 처리 후 agg 이용(agg : avg)
+  fit_data : 'title+content'
+  extract : 'all'
+  select_name: 'false-negative'
+
+SEED: 42

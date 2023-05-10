@@ -1,5 +1,5 @@
-bait_path='../../Fake-News-Detection-Dataset/data/Part1'
-sort_list="News_Auto"
+bait_path='../data-auto/false-negative'
+sort_list="News_Direct"
 
 for sort in $sort_list
 do
