@@ -67,7 +67,7 @@ class BaitDataset(Dataset):
             split = 'test'
 
         _logger.info(f"Get Category Ratio and Stratified Sampling")
-        train_category_num, val_category_num, test_category_num = self.get_category_ratio(os.path.join(data_dir, 'train', 'News'))
+        self.train_category_num, self.val_category_num, self.test_category_num = self.get_category_ratio(os.path.join(data_dir, 'train', 'News'))
 
         data_path = []
         for data in data_name:
@@ -77,14 +77,14 @@ class BaitDataset(Dataset):
                 train_dir = data_dir
 
             if split == 'train':
-                for cate in list(train_category_num.keys()):
-                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:train_category_num[cate]]
+                for cate in list(self.train_category_num.keys()):
+                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:self.train_category_num[cate]]
             elif split == 'validation':
-                for cate in list(val_category_num.keys()):
-                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:val_category_num[cate]]
+                for cate in list(self.val_category_num.keys()):
+                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:self.val_category_num[cate]]
             elif split == 'test':
-                for cate in list(test_category_num.keys()):
-                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:test_category_num[cate]]
+                for cate in list(self.test_category_num.keys()):
+                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:self.test_category_num[cate]]
 
             # data_path = data_path + glob(os.path.join(train_dir, split, data, '*/*'))                             
 
@@ -124,6 +124,31 @@ class BaitDataset(Dataset):
         total_file_path = {**news_file_path, **bait_file_path}
 
         return total_title, total_body, total_title_num, total_file_path
+    
+    def load_data_path(self, data_dir, bait_dir, sort, split) :
+        _logger.info(f'load {split} raw data')
+        
+        if 'test' not in split:
+            data_name = sort.split(sep='_') #['News', 'Direct']
+        else:
+            data_name = split.split(sep='_') 
+            data_name.pop(0) #['test','News', 'Direct'] -> ['News','Direct'] 리스트 형태 유지
+            split = 'test'
+
+        train_category_num, val_category_num, test_category_num = self.get_category_ratio(os.path.join(data_dir, 'train', 'News'))
+        self.category_num = {'train' : train_category_num, 'validation' : val_category_num, 'test' : test_category_num}
+        data_path = []
+        for data in data_name :
+            if data == 'Auto':
+                train_dir = bait_dir
+            else:
+                train_dir = data_dir
+
+            for cate in list(self.category_num[split].keys()):
+                data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:self.category_num[split][cate]]
+
+        return data_path
+
 
     def get_category_ratio(self, path_to_category) -> Tuple[dict, dict, dict]:
         category = {}
@@ -143,3 +168,19 @@ class BaitDataset(Dataset):
         test_category_num = {cat : int(TEST_DATA_SIZE * category[cat]) for cat in category}
 
         return train_category_num, val_category_num, test_category_num
+    
+    def load_bait_news_info(self, data_dir, bait_dir, split = "train") -> dict:
+        bait_data_path = self.load_data_path(data_dir, bait_dir, 'Auto', split)
+        DATA_LIST = ['train', 'validation', 'test']
+        bait_title = {}
+        bait_file_path = {}
+        news_title = {}
+        for split in DATA_LIST:
+            for num, filename in tqdm(enumerate(bait_data_path), desc = f'Load Data {split} | Bait : ', total=len(bait_data_path)) :
+                news = json.load(open(filename,'r'))
+                news_id = news['sourceDataInfo']['newsID'] #데이터명
+                bait_title[news_id] = news['labeledDataInfo']['newTitle']
+                news_title[news_id] = news['sourceDataInfo']['newsTitle']
+                bait_file_path[news_id] = filename
+
+        return bait_title, news_title, bait_file_path
