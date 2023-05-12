@@ -132,8 +132,8 @@ def main(method_name : str,
             sim_index = np.argsort(sim_matrix, axis=1)[:,-3]
             
             # update sim_filepath_dict
-            for file_path, idx in zip(file_list, sim_index):
-                sim_filepath_dict[category][file_path] = file_list[idx]
+            for file_path, idx in zip(file_list_cat, sim_index):
+                sim_filepath_dict[category][file_path] = file_list_cat[idx]
 
             # save sim_filepath_dict
             json.dump(sim_filepath_dict, open(savepath, 'w'), indent=4)
