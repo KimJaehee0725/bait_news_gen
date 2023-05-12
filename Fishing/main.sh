@@ -1,5 +1,5 @@
 bait_path='../../data/Bait/original'
-sort_list="News_Auto"
+sort_list="News_Base"
 
 for sort in $sort_list
 do

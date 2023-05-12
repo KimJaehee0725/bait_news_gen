@@ -1,13 +1,11 @@
 MODE:
     test_list:
-        # - train
-        # - validation
         - test_News_Base
         - test_News_Auto  
 
 
 DATASET:
-    data_path: ../../data/Bait/original # News + Base 
+    data_path: ../../data/Bait/original # News + Base
     bait_path: None
     max_word_len: 512
     sort: News_Auto

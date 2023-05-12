@@ -55,7 +55,6 @@ class BaitDataset(Dataset):
         doc['attention_mask']=encoding['attention_mask'].flatten()
 
         return doc, label
-    
 
     def load_dataset(self, data_dir, bait_dir, sort, split) -> Tuple[dict, dict, dict, dict]:
         _logger.info(f'load {split} raw data')
