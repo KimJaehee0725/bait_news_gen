@@ -1,4 +1,4 @@
-bait_path='../../Fake-News-Detection-Dataset/data/Part1'
+bait_path='../../data/Bait/original'
 sort_list="News_Auto"
 
 for sort in $sort_list
