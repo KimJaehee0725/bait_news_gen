@@ -193,6 +193,6 @@ if __name__=='__main__':
     _logger = logging.getLogger(__name__)
 
     # config
-    print('Config:')
-    print(json.dumps(cfg, indent=2))
+    _logger.info('Config:')
+    _logger.info(json.dumps(cfg, indent=2))
     run(cfg)
