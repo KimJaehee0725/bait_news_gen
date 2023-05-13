@@ -67,7 +67,6 @@ def score_tfidf_acc(sim_matrix, category, method_name):
     return top_1_accuracy
 
 
-
 def main(method_name : str, 
          extract_text_func, 
          file_list: list, 
@@ -75,10 +74,11 @@ def main(method_name : str,
          target: str, 
          savedir: str, 
          source : str = None,
+         top_k : int = 3
          ) -> None:
 
     # define save path
-    savepath = os.path.join(savedir, f'sim_index_{target}.json')
+    savepath = os.path.join(savedir, f'sim_index_{target}_123.json')
 
     # load sim_filepath_dict
     if not os.path.isfile(savepath):
@@ -129,7 +129,7 @@ def main(method_name : str,
             sim_filepath_dict.setdefault(category, dict())
             
             # find i-th index
-            sim_index = np.argsort(sim_matrix, axis=1)[:,-3]
+            sim_index = np.argsort(sim_matrix, axis=1)[:,top_k]
             
             # update sim_filepath_dict
             for file_path, idx in zip(file_list_cat, sim_index):
@@ -137,7 +137,7 @@ def main(method_name : str,
 
             # save sim_filepath_dict
             json.dump(sim_filepath_dict, open(savepath, 'w'), indent=4)
-        print(f"TFIDF top-1 acc mean: {np.mean(tfidf_acc_list)}")
+    print(f"TFIDF top-1 acc mean: {np.mean(tfidf_acc_list)}")
     return sim_filepath_dict
 
 
@@ -175,5 +175,6 @@ if __name__ == '__main__':
         target               = cfg['METHOD']['target'],
         source               = cfg['METHOD']['source'],
         savedir              = cfg['savedir'],
+        top_k                = cfg['METHOD']['topk'],
     )
 

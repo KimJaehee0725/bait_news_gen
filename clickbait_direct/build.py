@@ -6,9 +6,10 @@ import argparse
 import yaml
 import torch
 import random
+import time
 
 from tqdm.auto import tqdm
-from methods import get_similar_filepath_dict, extract_nouns, extract_text
+from methods import get_similar_filepath_dict, extract_nouns, extract_text, tfidf_category_select
 
 def torch_seed(random_seed):
     torch.manual_seed(random_seed)
@@ -21,7 +22,6 @@ def torch_seed(random_seed):
     np.random.seed(random_seed)
     random.seed(random_seed)
     os.environ['PYTHONHASHSEED'] = str(random_seed)
-
 
 
 def update_label_info(file: dict, new_title: str) -> dict:
@@ -65,7 +65,7 @@ def make_fake_title(file_list: list, save_list: list, cfg_method: dict, sim_file
                 'category'  : category_name,
                 'file_list' : file_list
             }
-        elif ('tfidf' or 'bow' or 'ngram' or 'sentence_embedding' or 'bm25') in cfg_method['name']:
+        elif cfg_method['name'] in ['tfidf_overlap_count','tfidf_overlap_intersection','tfidf','bow','ngram','sentence_embedding', 'bm25']:
             kwargs = {
                 'sim_filepath' : sim_filepath_dict[category_name][file_path]
             }
@@ -86,7 +86,7 @@ def make_fake_title(file_list: list, save_list: list, cfg_method: dict, sim_file
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--yaml_config', type=str, help='config filename', default='configs/tfidf_avg/tfidf_avg_content-title_title-title_category.yaml')
+    parser.add_argument('--yaml_config', type=str, help='config filename', default='configs/bm25/bm25_all_all_category.yaml')
     args = parser.parse_args()
     
     cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
@@ -104,24 +104,23 @@ if __name__ == '__main__':
     # make directory to save files
     partition_path = glob(os.path.join(cfg['datadir'], '[!sample]*/Clickbait_Auto/*'))
     partition_path = [p.replace(cfg['datadir'], cfg['savedir']) for p in partition_path]
-
-    ## train, validation 폴더 생성
     for path in partition_path:
         os.makedirs(path, exist_ok=True)    
 
-    # 1. build similarity model based on train data
+    # find article index most similar to article and save indices
     sim_filepath_dict = None
     if cfg['METHOD']['name'] != 'random':
         sim_filepath_dict = get_similar_filepath_dict(
-            select_name          = cfg['METHOD']['select_name'],
-            make_sim_matrix_func = __import__('methods').__dict__[f"{cfg['METHOD']['name']}_sim_matrix"],
+            method_name          = cfg['METHOD']['name'],
+            make_sim_matrix_func = __import__('methods').__dict__["tfidf_sim_matrix"] if 'overlap' in cfg['METHOD']['name'] \
+                                else __import__('methods').__dict__[f"{cfg['METHOD']['name']}_sim_matrix"],
             extract_text_func    = extract_text if ('dense' in cfg['METHOD']['name']) or (cfg['METHOD']['extract'] == 'all') else extract_nouns,
             file_list            = file_list,
             category_list        = os.listdir(os.path.join(cfg['savedir'],'train/Clickbait_Auto')),
-            query                = cfg['METHOD']['query'],  
-            key                  = cfg['METHOD']['key'],
-            fit_data             = cfg['METHOD']['fit_data'],
-            savedir              = cfg['savedir']
+            target               = cfg['METHOD']['target'],
+            source               = cfg['METHOD']['source'],
+            savedir              = cfg['savedir'],
+            top_k                = cfg['METHOD']['topk']
         )
 
     # run

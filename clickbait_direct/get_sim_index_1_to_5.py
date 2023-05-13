@@ -103,18 +103,17 @@ def main(
                 sim_filepath_dict = json.load(open(savepath, 'r'))
             
             sim_filepath_dict.setdefault(category, dict())
-            if i == 3:
-                continue
+            
             # find argmax
             if i == 1:
                 sim_index = sim_matrix.argmax(axis=1)
             # find i-th index
             else :
                 sim_index = np.argsort(sim_matrix, axis=1)[:,i]
-            
+
             # update sim_filepath_dict
-            for file_path, idx in zip(file_list, sim_index):
-                sim_filepath_dict[category][file_path] = file_list[idx]
+            for file_path, idx in zip(file_list_cat, sim_index):
+                sim_filepath_dict[category][file_path] = file_list_cat[idx]
 
             # save sim_filepath_dict
             json.dump(sim_filepath_dict, open(savepath, 'w'), indent=4)

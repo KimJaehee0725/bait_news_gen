@@ -1,0 +1,10 @@
+datadir: '../data/Part1'
+savedir: '../data-direct'
+METHOD:
+  name: 'tfidf'
+  target: 'content'
+  source : 'content'
+  select_name: 'tfidf_content_content_all'
+  extract : 'all'
+  topk : 5
+SEED: 42

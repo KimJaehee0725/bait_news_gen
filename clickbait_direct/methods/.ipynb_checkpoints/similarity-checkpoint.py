@@ -7,10 +7,17 @@ from konlpy.tag import Mecab
 from typing import List
 from .tfidf import overlap_token 
 
+import sys
+sys.path.append("..") # Adds higher directory to python modules path.
+from utils import score_tfidf_acc,score_overlap_acc
+#TODO : 이거 어떻게 넣는 게 좋을까?
+
+
+
 
 def get_similar_filepath_dict(
     method_name : str, make_sim_matrix_func, extract_text_func, 
-    file_list: list, category_list: list, target: str, savedir: str, source : str = None, top_k : int = None) -> None:
+    file_list: list, category_list: list, target: str, savedir: str, source : str = None, top_k : int = None, test = False) -> None:
 
     # define save path
     savepath = os.path.join(savedir, f'sim_index_{target}.json')
@@ -49,10 +56,20 @@ def get_similar_filepath_dict(
                     source_text_list = source_text_list
                 )
 
-            # get tfidf acc
+            #tfidf score 측정
+            if test :
+                score_tfidf_acc(sim_matrix, category)
 
             if 'dense' not in method_name: 
                 sim_matrix[np.arange(sim_matrix.shape[0]), np.arange(sim_matrix.shape[0])] = -1
+                tfidf_sim_matrix = sim_matrix
+
+            # TODO : add <overlap> func
+            if 'overlap' in method_name:
+                sim_matrix = overlap_token(method_name, sim_matrix, target_text_list, source_text_list, top_k = top_k)
+
+            if test : #TFIDF top1과 TFIDF-overlap top1이 얼마나 다른가
+                check_overlap(tfidf, target_text_list, source_text_list)
 
             # update similarity matrix
             sim_filepath_dict = extract_sim_filepath(
@@ -60,8 +77,7 @@ def get_similar_filepath_dict(
                 sim_matrix        = sim_matrix,
                 file_list         = file_list_cat,
                 category          = category,
-                sim_filepath_dict = sim_filepath_dict,
-                top_k             = top_k
+                sim_filepath_dict = sim_filepath_dict
             )
 
             # save sim_filepath_dict
@@ -71,20 +87,17 @@ def get_similar_filepath_dict(
 
 
 def extract_sim_filepath(
-    method_name : str, sim_matrix: np.ndarray, file_list: list, category: str, sim_filepath_dict: dict, top_k: int) -> None:
+    method_name : str, sim_matrix: np.ndarray, file_list: list, category: str, sim_filepath_dict: dict) -> None:
     """
     extract filepath most similar to filepath1 using ngram similarity
     """
+
     # find argmax
-    if top_k == 1:
-        if ('overlap' in method_name) or ('dense' in method_name) :
-            sim_index = list(sim_matrix[:, 0])
-        else :
-            sim_index = sim_matrix.argmax(axis=1)
-    # get top-k indices
+    if ['dense', 'overlap'] in method_name :
+        sim_index = list(sim_matrix[:, 0])
     else :
-        sim_index = np.argsort(sim_matrix, axis=1)[:,-top_k]
-    
+        sim_index = sim_matrix.argmax(axis=1)
+
     # update sim_filepath_dict
     for file_path, idx in zip(file_list, sim_index):
         sim_filepath_dict[category][file_path] = file_list[idx]
