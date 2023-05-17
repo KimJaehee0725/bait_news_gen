@@ -9,6 +9,7 @@
 │   │   ├── val_news.csv
 │   │   └── test_news.csv
 │   └── Fake :
+│       ├── fake_original.csv 
 │       ├── content_chunking_forward
 │       │   ├── generated
 │       │   │   ├── fake_top1.csv
