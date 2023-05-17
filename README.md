@@ -1,23 +1,58 @@
 # bait_news_gen
 
 ## 🍀 data directory 구성
-- data 
-    - train
-        - News
-        - Direct
-        - Auto
-    - validation
-        - train과 구성 동일
-    - test
-        - train과 구성 동일
-- data-auto
-    - method 이름
-        - train
-            - Auto
-        - validation
-            - Auto
-        - test
-            - Auto
+```bash
+├── data : 
+│   ├── T5 : train_t5.csv
+│   ├── Real :
+│   │   ├── train_news.csv
+│   │   ├── val_news.csv
+│   │   └── test_news.csv
+│   └── Fake :
+│       ├── content_chunking_forward
+│       │   ├── generated
+│       │   │   ├── fake_top1.csv
+│       │   │   └── fake_top2.csv
+│       │   └── filtered : fake_topk_threshold.csv
+│       │   │   ├── fake_top1_95.csv
+│       │   │   └── fake_top2_95.csv
+│       ├── rotation_chunking_backward
+│       │   ├── generated
+│       │   │   ├── fake_top1.csv
+│       │   │   └── fake_top2.csv
+│       │   └── filtered : fake_topk_threshold.csv
+│       │   │   ├── fake_top1_95.csv
+│       │   │   └── fake_top2_95.csv
+│       └── tfidf
+│           ├── generated
+│           │   ├── fake_top1.csv
+│           │   └── fake_top2.csv
+│           └── filtered : fake_topk_threshold.csv
+│               ├── fake_top1_95.csv
+│               └── fake_top2_95.csv
+│
+├── replacement : 교체 방법론 (tfidf, random, ...)
+│   ├── 
+│   └──
+│ 
+├── T5 :
+│   ├── finetuning : T5 fine-tuning
+│   │   ├── hf_dataset  
+│   │   ├── Models  
+│   │   └── train.py
+│   └── generation : 가짜 뉴스 생성
+│       ├── generate.py  
+│       ├── methods.py  
+│       └── generate.sh
+│
+├── filtering : false negative 필터링
+│   ├── 
+│   └──
+│
+└── detection : 탐지 모델 학습
+    ├── 
+    └──
+```
 
 ## 💚 py파일
 - main.py
