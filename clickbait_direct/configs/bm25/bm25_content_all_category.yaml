@@ -1,9 +1,0 @@
-datadir: '../data/Part1' 
-savedir: '../data-direct'
-METHOD:
-  name: 'bm25'
-  target: 'content'
-  source : 'title-content'
-  select_name: 'bm25_content_all_category_select'
-  extract : 'all'
-SEED: 42

@@ -1,8 +1,0 @@
-datadir: '../data/Part1' 
-savedir: '../data-direct'
-METHOD:
-  name: 'ngram'
-  target: 'title'
-  select_name: 'ngram_title_category_select'
-
-SEED: 42
