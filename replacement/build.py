@@ -33,8 +33,8 @@ def make_fake_title(data : pd.DataFrame, savedir, top_k, sim_filepath_dict: dict
     for category, src_sim_pairs_dict in tqdm(sim_filepath_dict.items()):
         for src_path, similar_path in tqdm(src_sim_pairs_dict.items()):
             data.loc[data['news_id'] == src_path, 'sim_news_id']  = similar_path
-            data.loc[data['news_id'] == src_path, 'bait_title']   = data[data['news_id'] == similar_path]['original_title'].values[0]
-            data.loc[data['news_id'] == src_path, 'bait_content'] = data[data['news_id'] == similar_path]['content'].values[0]
+            data.loc[data['news_id'] == src_path, 'bait_title']   = data.loc[data['news_id'] == similar_path, 'original_title'].values[0]
+            data.loc[data['news_id'] == src_path, 'bait_content'] = data.loc[data['news_id'] == similar_path, 'content'].values[0]
     data.to_csv(os.path.join(savedir, f'fake_title_{top_k}.csv'), index=False)
     
 
