@@ -40,7 +40,7 @@ def make_fake_title(data : pd.DataFrame, savedir, top_k, sim_filepath_dict: dict
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--yaml_config', type=str, help='config filename', default='/workspace/code/bait_news_gen/replacement/configs/tfidf/content_content.yaml')
+    parser.add_argument('--yaml_config', type=str, help='config filename', default='/workspace/code/bait_news_gen/replacement/configs/tfidf/full_full.yaml')
     args = parser.parse_args()
     
     cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
@@ -49,12 +49,12 @@ if __name__ == '__main__':
     torch_seed(cfg['SEED'])
 
     # update save directory
-    os.makedirs(os.path.join(cfg['savedir'], 'generated'), exist_ok=True)
-    cfg['savedir'] = os.path.join(cfg['savedir'], 'generated')
-    
     os.makedirs(os.path.join(cfg['savedir'], cfg["METHOD"]["select_name"]), exist_ok=True)
     cfg['savedir'] = os.path.join(cfg['savedir'], cfg["METHOD"]["select_name"])
 
+    os.makedirs(os.path.join(cfg['savedir'], 'generated'), exist_ok=True)
+    cfg['savedir'] = os.path.join(cfg['savedir'], 'generated')
+    
     # load file list
     train = pd.read_csv(cfg['datadir']+'/train_news.csv')
     val = pd.read_csv(cfg['datadir']+'/val_news.csv')

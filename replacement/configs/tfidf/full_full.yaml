@@ -1,5 +1,5 @@
-datadir: '../data/Part1'
-savedir: '../data-direct'
+datadir: '/workspace/code/bait_news_gen/data/Real'
+savedir: '/workspace/code/bait_news_gen/data/Fake'
 METHOD:
   name: 'tfidf'
   target: 'title-content'
