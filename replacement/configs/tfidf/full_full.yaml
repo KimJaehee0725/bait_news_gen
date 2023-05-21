@@ -1,4 +1,4 @@
-datadir: '/workspace/code/bait_news_gen/data/Real'
+datadir: '/workspace/code/bait_news_gen/data'
 savedir: '/workspace/code/bait_news_gen/data/Fake'
 METHOD:
   name: 'tfidf'
@@ -6,5 +6,5 @@ METHOD:
   source : 'title-content'
   select_name: 'tfidf_full_full_all'
   extract : 'all'
-  topk : 5
+  topk : 3
 SEED: 42
