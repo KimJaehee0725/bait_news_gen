@@ -29,12 +29,12 @@ def make_fake_title(data : pd.DataFrame, savedir, top_k, sim_filepath_dict: dict
     '''
     make fake title using selected method
     '''
-    data['bait_content'] = pd.Series
-    for category, src_sim_pairs_dict in sim_filepath_dict.items():
-        for src_path, similar_path in src_sim_pairs_dict.items():
-            data[data['news_id'] == src_path]['sim_news_id'] = similar_path
-            data[data['news_id'] == src_path]['bait_title'] = data[data['news_id'] == similar_path]['original_title'].values[0]
-            data[data['news_id'] == src_path]['bait_content'] = data[data['news_id'] == similar_path]['content'].values[0]
+    data['bait_content'] = pd.Series()
+    for category, src_sim_pairs_dict in tqdm(sim_filepath_dict.items()):
+        for src_path, similar_path in tqdm(src_sim_pairs_dict.items()):
+            data.loc[data['news_id'] == src_path, 'sim_news_id']  = similar_path
+            data.loc[data['news_id'] == src_path, 'bait_title']   = data[data['news_id'] == similar_path]['original_title'].values[0]
+            data.loc[data['news_id'] == src_path, 'bait_content'] = data[data['news_id'] == similar_path]['content'].values[0]
     data.to_csv(os.path.join(savedir, f'fake_title_{top_k}.csv'), index=False)
     
 
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     full_df = pd.concat([train, val, test], axis=0)
     print(">>> Load dataset, size : ",len(full_df)) 
 
-    # find article index most similar to article and save indices
+    #find article index most similar to article and save indices
     file_list = full_df['news_id'].tolist()
     sim_filepath_dict = None
     if cfg['METHOD']['name'] != 'random':
@@ -79,6 +79,8 @@ if __name__ == '__main__':
             savedir              = cfg['savedir'],
             top_k                = cfg['METHOD']['topk']
         )
+
+    json.dump(sim_filepath_dict, open(os.path.join(cfg['savedir'], 'sim_filepath_dict.json'), 'w'), indent=4)
 
     # run
     make_fake_title(

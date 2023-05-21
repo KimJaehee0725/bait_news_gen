@@ -5,11 +5,7 @@ MODE:
 
 
 DATASET:
-<<<<<<< HEAD
     data_path: ../data/Part1 # News + Direct ../data/original
-=======
-    data_path: ../../data/Bait/original # News + Base
->>>>>>> 971733263ead4f26987c0dadac08104b343257bf
     bait_path: None
     max_word_len: 512
     sort: News_Auto
