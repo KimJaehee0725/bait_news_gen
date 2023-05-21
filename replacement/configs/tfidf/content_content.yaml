@@ -1,4 +1,4 @@
-datadir: '/workspace/code/bait_news_gen/data/Real'
+datadir: '/workspace/code/bait_news_gen/data'
 savedir: '/workspace/code/bait_news_gen/data/Fake'
 METHOD:
   name: 'tfidf'

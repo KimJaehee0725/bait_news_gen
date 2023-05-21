@@ -49,11 +49,9 @@ if __name__ == '__main__':
     torch_seed(cfg['SEED'])
 
     # update save directory
-    os.makedirs(os.path.join(cfg['savedir'], cfg["METHOD"]["select_name"]), exist_ok=True)
-    cfg['savedir'] = os.path.join(cfg['savedir'], cfg["METHOD"]["select_name"])
-
-    os.makedirs(os.path.join(cfg['savedir'], 'generated'), exist_ok=True)
-    cfg['savedir'] = os.path.join(cfg['savedir'], 'generated')
+    final_path = os.path.join(cfg['savedir'], cfg["METHOD"]["select_name"], 'generated')
+    os.makedirs(final_path, exist_ok=True)
+    cfg['savedir'] = final_path
     
     # load file list
     df = pd.read_csv(os.path.join(cfg['datadir'], 'fake.csv'))
@@ -65,8 +63,11 @@ if __name__ == '__main__':
     if cfg['METHOD']['name'] != 'random':
         sim_filepath_dict = get_similar_filepath_dict(
             method_name          = cfg['METHOD']['name'],
-            make_sim_matrix_func = __import__('methods').__dict__["tfidf_sim_matrix"] if 'overlap' in cfg['METHOD']['name'] \
-                                else __import__('methods').__dict__[f"{cfg['METHOD']['name']}_sim_matrix"],
+            make_sim_matrix_func = __import__('methods').__dict__[
+                "tfidf_sim_matrix"
+                if 'overlap' in cfg['METHOD']['name']
+                else f"{cfg['METHOD']['name']}_sim_matrix"
+            ],
             extract_text_func    = extract_text if ('dense' in cfg['METHOD']['name']) or (cfg['METHOD']['extract'] == 'all') else extract_nouns,
             data                 = df,     
             file_list            = file_list,    
