@@ -1,0 +1,10 @@
+datadir: '../data/Part1'
+savedir: '../data-direct'
+METHOD:
+  name:  'tfidf_overlap_intersection'
+  target: 'title'
+  source : 'title-content'
+  select_name: 'tfidf_overlap_intersection_title'
+  extract : 'nouns'
+  topk : 20
+SEED: 42

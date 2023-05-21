@@ -5,7 +5,7 @@ MODE:
 
 
 DATASET:
-    data_path: ../../data/Bait/original # News + Base
+    data_path: ../data/Part1 # News + Direct ../data/original
     bait_path: None
     max_word_len: 512
     sort: News_Auto

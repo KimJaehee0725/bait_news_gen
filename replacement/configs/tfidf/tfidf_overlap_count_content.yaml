@@ -1,0 +1,10 @@
+datadir: '../data/Part1'
+savedir: '../data-direct'
+METHOD:
+  name:  'tfidf_overlap_count'
+  target: 'content'
+  source : 'title-content'
+  select_name: 'tfidf_overlap_count_content'
+  extract : 'nouns'
+  topk : 20
+SEED: 42
