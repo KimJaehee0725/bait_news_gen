@@ -40,7 +40,7 @@ def make_fake_title(data : pd.DataFrame, savedir, top_k, sim_filepath_dict: dict
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--yaml_config', type=str, help='config filename', default='/workspace/code/bait_news_gen/replacement/configs/tfidf/content_content.yaml')
+    parser.add_argument('--yaml_config', type=str, help='config filename', default='/workspace/code/bait_news_gen/replacement/configs/tfidf/full_full.yaml')
     args = parser.parse_args()
     
     cfg = yaml.load(open(args.yaml_config,'r'), Loader=yaml.FullLoader)
@@ -49,31 +49,29 @@ if __name__ == '__main__':
     torch_seed(cfg['SEED'])
 
     # update save directory
-    os.makedirs(os.path.join(cfg['savedir'], 'generated'), exist_ok=True)
-    cfg['savedir'] = os.path.join(cfg['savedir'], 'generated')
+    final_path = os.path.join(cfg['savedir'], cfg["METHOD"]["select_name"], 'generated')
+    os.makedirs(final_path, exist_ok=True)
+    cfg['savedir'] = final_path
     
-    os.makedirs(os.path.join(cfg['savedir'], cfg["METHOD"]["select_name"]), exist_ok=True)
-    cfg['savedir'] = os.path.join(cfg['savedir'], cfg["METHOD"]["select_name"])
-
     # load file list
-    train = pd.read_csv(cfg['datadir']+'/train_news.csv')
-    val = pd.read_csv(cfg['datadir']+'/val_news.csv')
-    test = pd.read_csv(cfg['datadir']+'/test_news.csv')
-    full_df = pd.concat([train, val, test], axis=0)
-    print(">>> Load dataset, size : ",len(full_df)) 
+    df = pd.read_csv(os.path.join(cfg['datadir'], 'fake.csv'))
+    print(">>> Load dataset, size : ",len(df)) 
 
     #find article index most similar to article and save indices
-    file_list = full_df['news_id'].tolist()
+    file_list = df['news_id'].tolist()
     sim_filepath_dict = None
     if cfg['METHOD']['name'] != 'random':
         sim_filepath_dict = get_similar_filepath_dict(
             method_name          = cfg['METHOD']['name'],
-            make_sim_matrix_func = __import__('methods').__dict__["tfidf_sim_matrix"] if 'overlap' in cfg['METHOD']['name'] \
-                                else __import__('methods').__dict__[f"{cfg['METHOD']['name']}_sim_matrix"],
+            make_sim_matrix_func = __import__('methods').__dict__[
+                "tfidf_sim_matrix"
+                if 'overlap' in cfg['METHOD']['name']
+                else f"{cfg['METHOD']['name']}_sim_matrix"
+            ],
             extract_text_func    = extract_text if ('dense' in cfg['METHOD']['name']) or (cfg['METHOD']['extract'] == 'all') else extract_nouns,
-            data                 = full_df,     
+            data                 = df,     
             file_list            = file_list,    
-            category_list        = full_df['category'].unique().tolist(),
+            category_list        = df['category'].unique().tolist(),
             target               = cfg['METHOD']['target'],
             source               = cfg['METHOD']['source'],
             savedir              = cfg['savedir'],
@@ -84,7 +82,7 @@ if __name__ == '__main__':
 
     # run
     make_fake_title(
-        data              = full_df,
+        data              = df,
         savedir           = cfg['savedir'],
         top_k             = cfg['METHOD']['topk'],
         sim_filepath_dict = sim_filepath_dict
