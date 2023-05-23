@@ -1,4 +1,4 @@
-model_sort_list="News_Base"
+model_sort_list="News_Auto"
 bait_sort_list="Fake/auto/type"
 saved_model_path='None'
 

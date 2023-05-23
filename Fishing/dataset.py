@@ -67,7 +67,7 @@ class BaitDataset(Dataset):
             if data == 'Auto':
                 train_dir = data_dir + bait_dir #fake
             else:
-                train_dir = data_dir + '/Real' #real
+                train_dir = data_dir + 'Real' #real
 
             if split == 'train':
                 df = pd.read_csv(os.path.join(train_dir, 'train.csv')) #data load
