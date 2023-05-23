@@ -13,24 +13,31 @@
 │       ├── content_chunking_forward
 │       │   ├── generated
 │       │   │   ├── fake_top1.csv
-│       │   │   └── fake_top2.csv
-│       │   └── filtered : fake_topk_threshold.csv
-│       │   │   ├── fake_top1_95.csv
-│       │   │   └── fake_top2_95.csv
-│       ├── rotation_chunking_backward
+│       │   │   └── fake_top3.csv
+│       │   └── filtered : fake_topk_threshold_under_threshold_upper.csv
+│       │   │   ├── fake_top1_90_100.csv
+│       │   │   └── fake_top3_90_100.csv
+│       ├── content_chunking_backward
 │       │   ├── generated
 │       │   │   ├── fake_top1.csv
-│       │   │   └── fake_top2.csv
-│       │   └── filtered : fake_topk_threshold.csv
-│       │   │   ├── fake_top1_95.csv
-│       │   │   └── fake_top2_95.csv
-│       └── tfidf
+│       │   │   └── fake_top3.csv
+│       │   └── filtered : fake_topk_threshold_under_threshold_upper.csv
+│       │   │   ├── fake_top1_90_100.csv
+│       │   │   └── fake_top3_90_100.csv
+│       ├── content_rotation_backward
+│       │   ├── generated
+│       │   │   ├── fake_top1.csv
+│       │   │   └── fake_top3.csv
+│       │   └── filtered : fake_topk_threshold_under_threshold_upper.csv
+│       │   │   ├── fake_top1_90_100.csv
+│       │   │   └── fake_top3_90_100.csv
+│       └── tfidf : full-full
 │           ├── generated
 │           │   ├── fake_top1.csv
-│           │   └── fake_top2.csv
-│           └── filtered : fake_topk_threshold.csv
-│               ├── fake_top1_95.csv
-│               └── fake_top2_95.csv
+│           │   └── fake_top3.csv
+│           └── filtered : fake_topk_threshold_under_threshold_upper.csv
+│               ├── fake_top1_90_100.csv
+│               └── fake_top3_90_100.csv
 │
 ├── replacement : 교체 방법론 (tfidf, random, ...)
 │   ├── 
