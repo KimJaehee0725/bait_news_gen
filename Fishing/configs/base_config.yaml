@@ -6,7 +6,6 @@ MODE:
 
 DATASET:
     data_path: /root/code/bait_news_gen/data # all data folder
-    #bait_path: None
     max_word_len: 512
     model_sort: None # News_Base or News_Auto
     bait_sort: None # which Auto

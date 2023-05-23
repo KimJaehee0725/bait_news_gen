@@ -61,74 +61,92 @@ def run(cfg):
     
     _logger.info('load raw data completely')
 
-    trainloader = DataLoader(
-        trainset,
-        batch_size = cfg['TRAIN']['batch_size'],
-        shuffle = True
-    )
-    validloader = DataLoader(
-        validset,
-        batch_size = cfg['TEST']['batch_size'],
-        shuffle = False
-    )
+    print('cfg[TEST][saved_model_path] : ', cfg['TEST']['saved_model_path'])
+
+    if cfg['TEST']['saved_model_path'] == 'None':
+
+        trainloader = DataLoader(
+            trainset,
+            batch_size = cfg['TRAIN']['batch_size'],
+            shuffle = True
+        )
+        validloader = DataLoader(
+            validset,
+            batch_size = cfg['TEST']['batch_size'],
+            shuffle = False
+        )
 
 
-    #* TRAIN -------------------
+        #* TRAIN -------------------
 
-    model_config = AutoConfig.from_pretrained('monologg/kobert')
-    model = BERT( # model.py class
-        config          = model_config,
-        num_classes     = 2
-    )
-   
-    model.to(device)
+        model_config = AutoConfig.from_pretrained('monologg/kobert')
+        model = BERT( # model.py class
+            config          = model_config,
+            num_classes     = 2
+        )
+    
+        model.to(device)
 
-    _logger.info('# of trainable params: {}'.format(np.sum([p.numel() if p.requires_grad else 0 for p in model.parameters()])))
+        _logger.info('# of trainable params: {}'.format(np.sum([p.numel() if p.requires_grad else 0 for p in model.parameters()])))
 
-    # wandb
-    if cfg['TRAIN']['use_wandb']:
-        wandb.init(
-            name=os.path.join(cfg['DATASET']['bait_sort'].split('/')[1], cfg['DATASET']['model_sort']), 
-            project='Bait-News-Detection', 
-            config=cfg
-            )
+        # wandb
+        if cfg['TRAIN']['use_wandb']:
+            wandb.init(
+                name=os.path.join(cfg['DATASET']['bait_sort'].split('/')[1], cfg['DATASET']['model_sort']), 
+                project='Bait-News-Detection', 
+                config=cfg
+                )
 
-    # Set training
-    criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.AdamW(
-        params       = filter(lambda p: p.requires_grad, model.parameters()), 
-        lr           = cfg['TRAIN']['OPTIMIZER']['lr'], 
-        weight_decay = cfg['TRAIN']['OPTIMIZER']['weight_decay']
-    )
+        # Set training
+        criterion = torch.nn.CrossEntropyLoss()
+        optimizer = torch.optim.AdamW(
+            params       = filter(lambda p: p.requires_grad, model.parameters()), 
+            lr           = cfg['TRAIN']['OPTIMIZER']['lr'], 
+            weight_decay = cfg['TRAIN']['OPTIMIZER']['weight_decay']
+        )
 
-    # scheduler
-    if cfg['TRAIN']['SCHEDULER']['use_scheduler']:
-        scheduler = get_cosine_schedule_with_warmup(
-            optimizer, 
-            num_warmup_steps   = int(cfg['TRAIN']['num_training_steps'] * cfg['TRAIN']['SCHEDULER']['warmup_ratio']), 
-            num_training_steps = cfg['TRAIN']['num_training_steps'])
-    else:
-        scheduler = None
+        # scheduler
+        if cfg['TRAIN']['SCHEDULER']['use_scheduler']:
+            scheduler = get_cosine_schedule_with_warmup(
+                optimizer, 
+                num_warmup_steps   = int(cfg['TRAIN']['num_training_steps'] * cfg['TRAIN']['SCHEDULER']['warmup_ratio']), 
+                num_training_steps = cfg['TRAIN']['num_training_steps'])
+        else:
+            scheduler = None
 
 
-    #* fitting Model
-    _logger.info('TRAIN start')
-        
-    train_model = training(
-        model              = model, 
-        num_training_steps = cfg['TRAIN']['num_training_steps'], 
-        trainloader        = trainloader, 
-        validloader        = validloader, 
-        criterion          = criterion, 
-        optimizer          = optimizer, 
-        scheduler          = scheduler,
-        log_interval       = cfg['TRAIN']['log_interval'],
-        eval_interval      = cfg['TRAIN']['eval_interval'],
-        savedir            = savedir,
-        accumulation_steps = cfg['TRAIN']['accumulation_steps'],
-        device             = device,
-        use_wandb          = cfg['TRAIN']['use_wandb']
-    )
+        #* fitting Model
+        _logger.info('TRAIN start')
+            
+        train_model = training(
+            model              = model, 
+            num_training_steps = cfg['TRAIN']['num_training_steps'], 
+            trainloader        = trainloader, 
+            validloader        = validloader, 
+            criterion          = criterion, 
+            optimizer          = optimizer, 
+            scheduler          = scheduler,
+            log_interval       = cfg['TRAIN']['log_interval'],
+            eval_interval      = cfg['TRAIN']['eval_interval'],
+            savedir            = savedir,
+            accumulation_steps = cfg['TRAIN']['accumulation_steps'],
+            device             = device,
+            use_wandb          = cfg['TRAIN']['use_wandb']
+        )
+
+    else :
+        #* load MODEL -------------------
+
+        model_config = AutoConfig.from_pretrained('monologg/kobert')
+        train_model = BERT( # model.py class
+            config          = model_config,
+            num_classes     = 2
+        )
+        train_model.load_state_dict(torch.load(cfg['TEST']['saved_model_path'])) # load pre-trained model
+        train_model.to(device)
+
+        criterion = torch.nn.CrossEntropyLoss()
+
 
     #* TEST -------------------
     _logger.info('TEST start')
