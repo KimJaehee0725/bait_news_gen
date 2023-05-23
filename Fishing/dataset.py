@@ -56,7 +56,8 @@ class BaitDataset(Dataset):
         _logger.info(f'load {split} raw data')
         
         if 'test' not in split:
-            data_name = sort.split(sep='_') #['News', 'Base']
+            #data_name = sort.split(sep='_') #['News', 'Base']
+            data_name = ['News', 'Auto']
         else:
             data_name = split.split(sep='_') 
             data_name.pop(0) #['test','News', 'Base'] -> ['News','Base'] 리스트 형태 유지
@@ -66,7 +67,9 @@ class BaitDataset(Dataset):
         for data in data_name:
             if data == 'Auto':
                 train_dir = data_dir + bait_dir #fake
-            else:
+            elif data == 'Base': #for test
+                train_dir = data_dir + "Fake/tfidf" #base
+            else: #data == news
                 train_dir = data_dir + 'Real' #real
 
             if split == 'train':
