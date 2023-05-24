@@ -84,7 +84,7 @@
 1.  본인의 데이터 폴더 형태 확인
 
     : 위 directory 구성 참고
-    - bait_sort 지정 시, ex) Fake/content_chunking_forward 와 같이 넣기 위해
+    - fake_path 지정 시, ex) Fake/content_chunking_forward 와 같이 넣기 위해
 
 2. config 파일 내 data_path 수정
     
@@ -117,5 +117,19 @@ bash run.sh
 
 
 
+#### score 확인
 
+- A, B, C, D
+    - 각 {방법론}/{방법론}/exp_metrics.json 내의 'acc'로 확인 가능
+
+- paper내 삽입될 table 형태의 결과
+    ```
+    python make_results.py
+    ```
+    실행하여 main_results.csv 확인 가능
+    
+    - make_results.py 내 fake_name을 원하는 fake type으로 수정
+    - ex) fake_name = content_chunking_forward 라면, content_chunking_forward로 train하고 tfidf로 test한 값이 C가 됨
+    - 각 방법론별 하나의 main_results.csv를 도출할 수 있음
+    - *주의* *** 해당 방법론에 대한 B, C, D 결과가 모두 있어야 함
 
