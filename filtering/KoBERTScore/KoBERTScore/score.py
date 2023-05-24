@@ -5,7 +5,7 @@ import torch
 import torch.nn.functional as F
 from collections import Counter
 from transformers import BertModel, BertTokenizer
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 
 def bert_score(bert_tokenizer, bert_model, references, candidates,
@@ -93,7 +93,7 @@ def sents_to_tensor(bert_tokenizer, input_sents):
                    [0, 1, 1, 1, 0, 0, 0],
                    [0, 1, 1, 1, 0, 0, 0]]))
     """
-    inputs = bert_tokenizer.batch_encode_plus(input_sents, padding=True)
+    inputs = bert_tokenizer.batch_encode_plus(input_sents, padding=True, max_length=512, truncation = True)
     padded_input_ids = torch.LongTensor(inputs['input_ids'])
     attention_mask = torch.LongTensor(inputs['attention_mask'])
 
