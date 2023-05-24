@@ -1,7 +1,7 @@
-MODE:
-    test_list:
-        - test_News_Base
-        - test_News_Auto  
+# MODE:
+#     test_list:
+#         - test_News_Base
+#         - test_News_Auto  
 
 
 DATASET:

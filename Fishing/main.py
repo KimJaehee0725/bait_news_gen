@@ -39,13 +39,9 @@ def run(cfg):
 
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
     _logger.info('Device: {}'.format(device))
-
     
-    #* save directory
-    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_sort'].split('/')[1], cfg['DATASET']['model_sort'])
-    os.makedirs(savedir, exist_ok=True)
-
-                           
+    #Fake/tfidf/train.csv, test.csv, val.csv
+                              
     #* make TRAIN data
     tokenizer = get_tokenizer() # monologg/kobert
     trainset = BaitDataset(
@@ -64,6 +60,14 @@ def run(cfg):
     print('cfg[TEST][saved_model_path] : ', cfg['TEST']['saved_model_path'])
 
     if cfg['TEST']['saved_model_path'] == 'None':
+
+        #* save directory Fake/auto
+        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_sort'].split('/')[1])
+                            # 학습시 : saved_model / 학습 모델 이름
+                            # 테스트시 : saved_model / 학습 모델 이름 / 테스트 데이터 이름
+        print('model savedir : ', savedir)
+
+        os.makedirs(savedir, exist_ok=True)
 
         trainloader = DataLoader(
             trainset,
@@ -92,7 +96,7 @@ def run(cfg):
         # wandb
         if cfg['TRAIN']['use_wandb']:
             wandb.init(
-                name=os.path.join(cfg['DATASET']['bait_sort'].split('/')[1], cfg['DATASET']['model_sort']), 
+                name=os.path.join(cfg['DATASET']['bait_sort'].split('/')[1]), 
                 project='Bait-News-Detection', 
                 config=cfg
                 )
@@ -134,7 +138,7 @@ def run(cfg):
             use_wandb          = cfg['TRAIN']['use_wandb']
         )
 
-    else :
+    else :        
         #* load MODEL -------------------
 
         model_config = AutoConfig.from_pretrained('monologg/kobert')
@@ -151,62 +155,61 @@ def run(cfg):
     #* TEST -------------------
     _logger.info('TEST start')
 
-    for split in cfg['MODE']['test_list']:
-        _logger.info('{} evaluation'.format(split.upper()))
+    #* save directory Fake/auto
+    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['TEST']['saved_model_path'].split('/')[-2], cfg['DATASET']['bait_sort'].split('/')[1])
+                            # 학습시 : saved_model / 학습 모델 이름
+                            # 테스트시 : saved_model / 학습 모델 이름 / 테스트 데이터 이름
+    print('result savedir : ', savedir)
+    os.makedirs(savedir, exist_ok=True)
+
+    bait = cfg['DATASET']['bait_sort'].split('/')[1]
+    _logger.info(f'{bait} evaluation')
         
-        if split == 'train':
-            dataset = trainset
-        elif split == 'validation':
-            dataset = validset
-        else:
-            dataset = BaitDataset(
-                cfg['DATASET'],
-                split,
-                tokenizer = tokenizer
-            )
+    testset = BaitDataset(
+        cfg['DATASET'],
+        'test',
+        tokenizer = tokenizer
+    )
 
-        testloader = DataLoader(
-            dataset, 
-            batch_size  = cfg['TEST']['batch_size']
-        )
+    testloader = DataLoader(
+        testset, 
+        batch_size  = cfg['TEST']['batch_size']
+    )
 
-        #* testing Model
-        metrics, exp_results = evaluate(
-            model        = train_model, 
-            dataloader   = testloader, 
-            criterion    = criterion,
-            log_interval = cfg['TEST']['log_interval'],
-            device       = device,
-            sample_check = True
-        )
+    #* testing Model
+    metrics, exp_results = evaluate(
+        model        = train_model, 
+        dataloader   = testloader, 
+        criterion    = criterion,
+        log_interval = cfg['TEST']['log_interval'],
+        device       = device,
+        sample_check = True
+    )
                 
-        # save exp result
-        exp_results = pd.concat([pd.DataFrame({'news_id':dataset.id_list}), pd.DataFrame(exp_results)], axis=1)
-        exp_results['label'] = dataset.label_list
-        exp_results.to_csv(os.path.join(savedir, f'exp_results_{split}.csv'), index=False)
+    # save exp result
+    exp_results = pd.concat([pd.DataFrame({'news_id':testset.id_list}), pd.DataFrame(exp_results)], axis=1)
+    exp_results['label'] = testset.label_list
+    exp_results.to_csv(os.path.join(savedir, f'exp_results.csv'), index=False)
 
-        # save result metrics
-        json.dump(metrics, open(os.path.join(savedir, f"{split}.json"),'w'), indent='\t')
+    # save result metrics
+    json.dump(metrics, open(os.path.join(savedir, f"exp_metrics.json"),'w'), indent='\t')
+        
 
 
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
     parser.add_argument('--base_config', type=str, default='configs/base_config.yaml', help='exp config file')    
-    #parser.add_argument('--bait_path', type=str, default='../data/generated/tfidf_avg_category_select')
-    parser.add_argument('--model_sort', type=str, default='News_Base')
     parser.add_argument('--bait_sort', type=str, default='Fake/tfidf/generated')
     parser.add_argument('--saved_model_path', type=str, default='None', help='saved_model_path')
 
     args = parser.parse_args()
 
     cfg = yaml.load(open(args.base_config,'r'), Loader=yaml.FullLoader)
-    #cfg['DATASET']['bait_path'] = args.bait_path
-    cfg['DATASET']['model_sort'] = args.model_sort
     cfg['DATASET']['bait_sort'] = args.bait_sort
     cfg['TEST']['saved_model_path'] = args.saved_model_path
 
-    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_sort'].split('/')[1], cfg['DATASET']['model_sort'])
+    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_sort'].split('/')[1])
     os.makedirs(savedir, exist_ok=True)
     
     logging.basicConfig(

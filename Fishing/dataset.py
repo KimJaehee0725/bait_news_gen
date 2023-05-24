@@ -21,8 +21,7 @@ class BaitDataset(Dataset):
 
         self.id_list, self.title_list, self.body_list, self.label_list = self.load_dataset(
             data_dir=config['data_path'], 
-            bait_dir=config['bait_sort'], 
-            sort=config['model_sort'], 
+            bait_sort=config['bait_sort'],  
             split=split
             )
 
@@ -52,36 +51,28 @@ class BaitDataset(Dataset):
         return doc, label
 
 
-    def load_dataset(self, data_dir, bait_dir, sort, split) -> Tuple[dict, dict, dict, dict]:
-        _logger.info(f'load {split} raw data')
+    def load_dataset(self, data_dir, bait_sort, split) -> Tuple[dict, dict, dict, dict]:
         
-        if 'test' not in split:
-            #data_name = sort.split(sep='_') #['News', 'Base']
-            data_name = ['News', 'Auto']
-        else:
-            data_name = split.split(sep='_') 
-            data_name.pop(0) #['test','News', 'Base'] -> ['News','Base'] 리스트 형태 유지
-            split = 'test'
-
+        bait = bait_sort.split('/')[1]
+        _logger.info(f'load {bait} raw data')
+        
         data_df = pd.DataFrame()
-        for data in data_name:
-            if data == 'Auto':
-                train_dir = data_dir + bait_dir #fake
-            elif data == 'Base': #for test
-                train_dir = data_dir + "Fake/tfidf" #base
-            else: #data == news
-                train_dir = data_dir + 'Real' #real
-
+        
+        real_dir = data_dir + 'Real'
+        bait_dir = data_dir + bait_sort
+        
+        for dir in [real_dir, bait_dir]:
             if split == 'train':
-                df = pd.read_csv(os.path.join(train_dir, 'train.csv')) #data load
+                df = pd.read_csv(os.path.join(dir, 'train.csv')) #data load
 
             elif split == 'validation':
-                df = pd.read_csv(os.path.join(train_dir, 'val.csv'))
+                df = pd.read_csv(os.path.join(dir, 'val.csv'))
 
             elif split == 'test':
-                df = pd.read_csv(os.path.join(train_dir, 'test.csv'))
-
+                df = pd.read_csv(os.path.join(dir, 'test.csv'))
+            
             data_df = pd.concat([data_df,df], ignore_index=True) #train data
+
 
         print(f'{split} : ', len(data_df))
 
