@@ -50,9 +50,24 @@
 │   ├── 
 │   └──
 │
-└── detection : 탐지 모델 학습
-    ├── 
-    └──
+├── detection : 탐지 모델 학습
+│   ├── 
+│   └── 
+│
+│
+├── results : 학습된 모델, 학습 결과, 테스트 결과 저장
+│   └── tfidf
+│       ├── best_model.pt
+│       ├── best_score.json : train 결과
+│       ├── latest_model.pt
+│       └── content_chunking_forward
+│           ├── exp_metrics.json : test f1, acc, loss
+│           ├── exp_results.csv : test 결과
+│           └── main_results.csv : paper table 용 - B>C / D / false_negative
+│
+│  
+│
+└──    
 ```
 
 ## 💚 py파일
@@ -66,7 +81,7 @@
 ## 🔫 실행
 
 #### < 실행 전 확인 사항 >
-1.  데이터 폴더 형태 확인
+1.  본인의 데이터 폴더 형태 확인
 
     : 위 directory 구성 참고
     - bait_sort 지정 시, ex) Fake/content_chunking_forward 와 같이 넣기 위해
@@ -79,60 +94,28 @@
 
 
 #### 기본 실행
-- run.sh에서 model_sort와 bait_sort수정해서 사용하면 됩니다.
-    - model_sort : 학습 시 사용할 데이터 유형 - News_Base / News_Auto 
-    - bait_sort : 학습 시 사용할 bait 데이터 폴더 경로 - Fake/{bait 종류}
+- run.sh에서 fake_path와 saved_model_path 수정해서 사용
+    - fake_path : 학습 시 사용할 fake 데이터 폴더 경로 - Fake/{bait 종류}
+    - saved_model_path
+        - train부터 test까지 하는 경우 - 'None'
+        - 이미 저장된 모델로 test만 하는 경우 - saved_model/{방법론}/best_model.pt
 ```
 bash run.sh
 ```
 
-```
-python main.py --base_config ./configs/{데이터명}.yaml
-```
+- 실행 방법
 
-- train 시킨 모델로 test만 하고 싶을 때
+    - train~test
+    1. [run.sh](http://run.sh/) 파일 내의 fake_path에 학습하고자 하는 fake 데이터 지정 (ex. Fake/tfidf)
+    2. saved_model_path에 “None”
+    -> train data: news+A / test data: news+A
 
-```
-python test.py --base_config ./configs/{데이터명}.yaml
-```
- → 사용시, 원하는 학습 모델 경로로 test.py내 checkpoint 수정 필요
-
----------------
-
-## 🍈 동작
-### train + test
-1. python main.py --base_config ./configs/{데이터명}.yaml 실행
-2. config 파일 내 data_path와 bait_path에서 데이터 로드
-3. config 파일 내 sort에 지정된 데이터 종류로 모델 학습
-4. checkpoint 저장
-5. 테스트용 데이터 로드 : News, Direct, Auto
-6. 학습 모델 테스트
-7. 테스트 결과 저장
+    - only test
+    1. [run.sh](http://run.sh/) 파일 내의  fake_path에 테스트하고자 하는 fake 데이터 지정 (ex. Fake/tfidf)
+    2. saved_model_path에 사용할 모델 지정 (ex. saved_model/A/best_model.pt)
+    -> model: A데이터로 학습된 모델 / test data: news+B
 
 
-### train없이, only test
-1. test.py 내 ckeckpoint 경로 수정
-2. python test.py --base_config ./configs/{데이터명}.yaml 실행
-3. checkpoint 모델 로드
-4. 테스트용 데이터 로드 : News, Direct, Auto 
-5. 학습 모델 테스트
-6. 테스트 결과 저장
 
 
----------------
-## 🍏 예시
 
-#### News_Direct 데이터로 학습 시키고 싶다면?
-```
-python main.py --base_config ./configs/News_Direct.yaml
-```
-(config 내 sort는 News_Direct로 되어 있어야 함)
-
-
-#### News_Direct 데이터로 학습 시킨 모델에 새로운 Auto 데이터를 테스트 하고 싶다면?
-→ 새로운 config 파일 생성 필요
-
-bait_path : 새로운 Auto 경로로 수정 (나머지 항목 수정 필요x)
-```
-python test.py --base_config ./configs/{새로운 config}.yaml
-```
