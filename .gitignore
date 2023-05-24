@@ -4,3 +4,9 @@ __pycache__/
 original_data/
 data/
 .vscode/
+data-auto/
+data-direct/
+Fishing/configs_saeran/
+data-1st/
+replacement/get_sim_index_1_to_5.py
+replacement/get_sim_index_topk.py

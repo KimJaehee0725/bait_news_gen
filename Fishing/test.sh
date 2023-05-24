@@ -1,5 +1,5 @@
-bait_path='../../main_generation/data-Auto/tfidf_avg_category_select'
-sort="News_Direct"
-saved_model_path='../saved_model/News_Direct/best_model.pt'
+bait_path= '../../data/Bait/original' 
+sort="News_Auto"
+saved_model_path='../saved_model/News_Base/best_model.pt'
 
-python test.py --bait_path $bait_path --sort $sort --saved_model_path $saved_model_path
+python3 test.py --bait_path ../../data/Bait/original --sort $sort --saved_model_path $saved_model_path

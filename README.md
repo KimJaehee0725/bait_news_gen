@@ -1,29 +1,77 @@
 # bait_news_gen
 
----------------
+## 🍀 data directory 구성
+```bash
+├── data : 
+│   ├── T5 : train_t5.csv
+│   ├── Real :
+│   │   ├── train_news.csv
+│   │   ├── val_news.csv
+│   │   └── test_news.csv
+│   └── Fake :
+│       ├── fake_original.csv 
+│       ├── content_chunking_forward
+│       │   ├── generated
+│       │   │   ├── fake_top1.csv
+│       │   │   └── fake_top3.csv
+│       │   └── filtered : fake_topk_threshold_under_threshold_upper.csv
+│       │   │   ├── fake_top1_90_100.csv
+│       │   │   └── fake_top3_90_100.csv
+│       ├── content_chunking_backward
+│       │   ├── generated
+│       │   │   ├── fake_top1.csv
+│       │   │   └── fake_top3.csv
+│       │   └── filtered : fake_topk_threshold_under_threshold_upper.csv
+│       │   │   ├── fake_top1_90_100.csv
+│       │   │   └── fake_top3_90_100.csv
+│       ├── content_rotation_backward
+│       │   ├── generated
+│       │   │   ├── fake_top1.csv
+│       │   │   └── fake_top3.csv
+│       │   └── filtered : fake_topk_threshold_under_threshold_upper.csv
+│       │   │   ├── fake_top1_90_100.csv
+│       │   │   └── fake_top3_90_100.csv
+│       └── tfidf : full-full
+│           ├── generated
+│           │   ├── fake_top1.csv
+│           │   └── fake_top3.csv
+│           └── filtered : fake_topk_threshold_under_threshold_upper.csv
+│               ├── fake_top1_90_100.csv
+│               └── fake_top3_90_100.csv
+│
+├── replacement : 교체 방법론 (tfidf, random, ...)
+│   ├── 
+│   └──
+│ 
+├── T5 :
+│   ├── finetuning : T5 fine-tuning
+│   │   ├── hf_dataset  
+│   │   ├── Models  
+│   │   └── train.py
+│   └── generation : 가짜 뉴스 생성
+│       ├── generate.py  
+│       ├── methods.py  
+│       └── generate.sh
+│
+├── filtering : false negative 필터링
+│   ├── 
+│   └──
+│
+└── detection : 탐지 모델 학습
+    ├── 
+    └──
+```
 
-## data
-
-1. train
-- News_Direct
-- News_Auto
-- News_Direct_Auto
-
-2. test
-- News
-- Direct
-- Auto
-
-## py파일
+## 💚 py파일
 - main.py
 - dataset.py
 - model.py
 - train.py
+- test.py
 - log.py
 
----------------
 
-## 실행
+## 🔫 실행
 
 #### < 실행 전 확인 사항 >
 1.  데이터 폴더명 변경
@@ -41,22 +89,29 @@
 
 
 #### 기본 실행
+- main.sh에서 bait_path와 sort_list수정해서 사용하면 됩니다.
+    - bait_path : auto로 만들어진 가짜뉴스 데이터 폴더
+    - sort_list : News_Auto(auto로 BERT 학습), News_Direct(direct로 BERT 학습)
 ```
-python main.py --yaml_config ./configs/{데이터명}.yaml
+bash main.sh
+```
+
+```
+python main.py --base_config ./configs/{데이터명}.yaml
 ```
 
 - train 시킨 모델로 test만 하고 싶을 때
 
 ```
-python forTest.py --yaml_config ./configs/{데이터명}.yaml
+python test.py --base_config ./configs/{데이터명}.yaml
 ```
- → 사용시, 원하는 학습 모델 경로로 forTest.py내 checkpoint 수정 필요
+ → 사용시, 원하는 학습 모델 경로로 test.py내 checkpoint 수정 필요
 
 ---------------
 
-## 동작
-
-1. python main.py --yaml_config ./configs/{데이터명}.yaml 실행
+## 🍈 동작
+### train + test
+1. python main.py --base_config ./configs/{데이터명}.yaml 실행
 2. config 파일 내 data_path와 bait_path에서 데이터 로드
 3. config 파일 내 sort에 지정된 데이터 종류로 모델 학습
 4. checkpoint 저장
@@ -65,9 +120,9 @@ python forTest.py --yaml_config ./configs/{데이터명}.yaml
 7. 테스트 결과 저장
 
 
-- train 시킨 모델로 test만 하고 싶을 때
-1. forTest.py 내 ckeckpoint 경로 수정
-2. python forTest.py --yaml_config ./configs/{데이터명}.yaml 실행
+### train없이, only test
+1. test.py 내 ckeckpoint 경로 수정
+2. python test.py --base_config ./configs/{데이터명}.yaml 실행
 3. checkpoint 모델 로드
 4. 테스트용 데이터 로드 : News, Direct, Auto 
 5. 학습 모델 테스트
@@ -75,11 +130,11 @@ python forTest.py --yaml_config ./configs/{데이터명}.yaml
 
 
 ---------------
-## 예시
+## 🍏 예시
 
 #### News_Direct 데이터로 학습 시키고 싶다면?
 ```
-python main.py --yaml_config ./configs/News_Direct.yaml
+python main.py --base_config ./configs/News_Direct.yaml
 ```
 (config 내 sort는 News_Direct로 되어 있어야 함)
 
@@ -89,5 +144,5 @@ python main.py --yaml_config ./configs/News_Direct.yaml
 
 bait_path : 새로운 Auto 경로로 수정 (나머지 항목 수정 필요x)
 ```
-python forTest.py --yaml_config ./configs/{새로운 config}.yaml
+python test.py --base_config ./configs/{새로운 config}.yaml
 ```

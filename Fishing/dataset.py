@@ -49,22 +49,21 @@ class BaitDataset(Dataset):
             truncation=True
         )
         
-        label = 1 if ('Direct' in path) or ("Auto" in path) else 0
+        label = 1 if ('Base' in path) or ("Auto" in path) else 0 #!base
         doc = {}
         doc['input_ids']=encoding['input_ids'].flatten()
         doc['attention_mask']=encoding['attention_mask'].flatten()
 
         return doc, label
-    
 
     def load_dataset(self, data_dir, bait_dir, sort, split) -> Tuple[dict, dict, dict, dict]:
         _logger.info(f'load {split} raw data')
         
         if 'test' not in split:
-            data_name = sort.split(sep='_') #['News', 'Direct']
+            data_name = sort.split(sep='_') #['News', 'Base']
         else:
             data_name = split.split(sep='_') 
-            data_name.pop(0) #['test','News', 'Direct'] -> ['News','Direct'] 리스트 형태 유지
+            data_name.pop(0) #['test','News', 'Base'] -> ['News','Base'] 리스트 형태 유지
             split = 'test'
 
         _logger.info(f"Get Category Ratio and Stratified Sampling")

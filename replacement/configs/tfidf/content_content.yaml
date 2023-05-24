@@ -1,0 +1,10 @@
+datadir: '/workspace/code/bait_news_gen/data'
+savedir: '/workspace/code/bait_news_gen/data/Fake'
+METHOD:
+  name: 'tfidf'
+  target: 'content'
+  source : 'content'
+  select_name: 'tfidf_content_content_all'
+  extract : 'all'
+  topk : 3
+SEED: 42
