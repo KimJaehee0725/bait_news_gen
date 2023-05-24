@@ -62,7 +62,7 @@ def run(cfg):
     if cfg['TEST']['saved_model_path'] == 'None':
 
         #* save directory Fake/auto
-        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_sort'].split('/')[1])
+        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['fake_path'].split('/')[1])
                             # 학습시 : saved_model / 학습 모델 이름
                             # 테스트시 : saved_model / 학습 모델 이름 / 테스트 데이터 이름
         print('model savedir : ', savedir)
@@ -96,7 +96,7 @@ def run(cfg):
         # wandb
         if cfg['TRAIN']['use_wandb']:
             wandb.init(
-                name=os.path.join(cfg['DATASET']['bait_sort'].split('/')[1]), 
+                name=os.path.join(cfg['DATASET']['fake_path'].split('/')[1]), 
                 project='Bait-News-Detection', 
                 config=cfg
                 )
@@ -139,7 +139,7 @@ def run(cfg):
         )
 
         #* save directory Fake/auto
-        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_sort'].split('/')[1], cfg['DATASET']['bait_sort'].split('/')[1])
+        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['fake_path'].split('/')[1], cfg['DATASET']['fake_path'].split('/')[1])
                                 # 학습시 : saved_model / 학습 모델 이름
                                 # 테스트시 : saved_model / 학습 모델 이름 / 테스트 데이터 이름
         print('result savedir : ', savedir)
@@ -149,7 +149,7 @@ def run(cfg):
         #* load MODEL -------------------
 
         #* save directory Fake/auto
-        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['TEST']['saved_model_path'].split('/')[-2], cfg['DATASET']['bait_sort'].split('/')[1])
+        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['TEST']['saved_model_path'].split('/')[-2], cfg['DATASET']['fake_path'].split('/')[1])
                                 # 학습시 : saved_model / 학습 모델 이름
                                 # 테스트시 : saved_model / 학습 모델 이름 / 테스트 데이터 이름
         print('result savedir : ', savedir)
@@ -169,7 +169,7 @@ def run(cfg):
     #* TEST -------------------
     _logger.info('TEST start')
 
-    bait = cfg['DATASET']['bait_sort'].split('/')[1]
+    bait = cfg['DATASET']['fake_path'].split('/')[1]
     _logger.info(f'{bait} evaluation')
         
     testset = BaitDataset(
@@ -207,16 +207,16 @@ def run(cfg):
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
     parser.add_argument('--base_config', type=str, default='configs/base_config.yaml', help='exp config file')    
-    parser.add_argument('--bait_sort', type=str, default='Fake/tfidf/generated')
+    parser.add_argument('--fake_path', type=str, default='Fake/tfidf/generated')
     parser.add_argument('--saved_model_path', type=str, default='None', help='saved_model_path')
 
     args = parser.parse_args()
 
     cfg = yaml.load(open(args.base_config,'r'), Loader=yaml.FullLoader)
-    cfg['DATASET']['bait_sort'] = args.bait_sort
+    cfg['DATASET']['fake_path'] = args.fake_path
     cfg['TEST']['saved_model_path'] = args.saved_model_path
 
-    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_sort'].split('/')[1])
+    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['fake_path'].split('/')[1])
     os.makedirs(savedir, exist_ok=True)
     
     logging.basicConfig(
