@@ -54,8 +54,9 @@
 │       └── generate.sh
 │
 ├── filtering : false negative 필터링
-│   ├── 
-│   └──
+│   ├── KoBERTScore : 한국어 BERTScore 계산 레포지토리
+│   ├── BERTScore.ipynb : 데이터 분석 용 BERTScore 계산 노트북 파일
+│   └── cal_bertscore.py : 전체 데이터셋에 대한 BERTScore 계산 
 │
 └── detection : 탐지 모델 학습
     ├── 
