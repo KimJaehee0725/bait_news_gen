@@ -1,8 +1,8 @@
-bait_sort_list="Fake/auto/type"
-saved_model_path='/root/code/bait_news_gen/saved_model_old/original/News_Auto/best_model.pt'
+fake_path_list="Fake/auto/type"
+saved_model_path='None'
 
-for bait_sort in $bait_sort_list
+for fake_path in $fake_path_list
 do
     echo $sort
-    python3 main.py --bait_sort $bait_sort --saved_model_path $saved_model_path
+    python3 main.py --fake_path $fake_path --saved_model_path $saved_model_path
 done

@@ -138,8 +138,22 @@ def run(cfg):
             use_wandb          = cfg['TRAIN']['use_wandb']
         )
 
+        #* save directory Fake/auto
+        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['bait_sort'].split('/')[1], cfg['DATASET']['bait_sort'].split('/')[1])
+                                # 학습시 : saved_model / 학습 모델 이름
+                                # 테스트시 : saved_model / 학습 모델 이름 / 테스트 데이터 이름
+        print('result savedir : ', savedir)
+        os.makedirs(savedir, exist_ok=True)
+
     else :        
         #* load MODEL -------------------
+
+        #* save directory Fake/auto
+        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['TEST']['saved_model_path'].split('/')[-2], cfg['DATASET']['bait_sort'].split('/')[1])
+                                # 학습시 : saved_model / 학습 모델 이름
+                                # 테스트시 : saved_model / 학습 모델 이름 / 테스트 데이터 이름
+        print('result savedir : ', savedir)
+        os.makedirs(savedir, exist_ok=True)
 
         model_config = AutoConfig.from_pretrained('monologg/kobert')
         train_model = BERT( # model.py class
@@ -154,13 +168,6 @@ def run(cfg):
 
     #* TEST -------------------
     _logger.info('TEST start')
-
-    #* save directory Fake/auto
-    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['TEST']['saved_model_path'].split('/')[-2], cfg['DATASET']['bait_sort'].split('/')[1])
-                            # 학습시 : saved_model / 학습 모델 이름
-                            # 테스트시 : saved_model / 학습 모델 이름 / 테스트 데이터 이름
-    print('result savedir : ', savedir)
-    os.makedirs(savedir, exist_ok=True)
 
     bait = cfg['DATASET']['bait_sort'].split('/')[1]
     _logger.info(f'{bait} evaluation')
