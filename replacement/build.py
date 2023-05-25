@@ -29,13 +29,16 @@ def make_fake_title(data : pd.DataFrame, savedir, top_k, sim_filepath_dict: dict
     '''
     make fake title using selected method
     '''
-    data['bait_content'] = pd.Series()
+    data['sim_news_content'] = pd.Series()
+    data['sim_news_title'] = pd.Series()
+
     for category, src_sim_pairs_dict in tqdm(sim_filepath_dict.items()):
         for src_path, similar_path in tqdm(src_sim_pairs_dict.items()):
             data.loc[data['news_id'] == src_path, 'sim_news_id']  = similar_path
             data.loc[data['news_id'] == src_path, 'bait_title']   = data.loc[data['news_id'] == similar_path, 'original_title'].values[0]
-            data.loc[data['news_id'] == src_path, 'bait_content'] = data.loc[data['news_id'] == similar_path, 'content'].values[0]
-    data.to_csv(os.path.join(savedir, f'fake_title_{top_k}.csv'), index=False)
+            data.loc[data['news_id'] == src_path, 'sim_news_title']   = data.loc[data['news_id'] == similar_path, 'original_title'].values[0]
+            data.loc[data['news_id'] == src_path, 'sim_news_content'] = data.loc[data['news_id'] == similar_path, 'content'].values[0]
+    data.to_csv(os.path.join(savedir, f'fake_top{top_k}.csv'), index=False)
     
 
 if __name__ == '__main__':
@@ -78,7 +81,7 @@ if __name__ == '__main__':
             top_k                = cfg['METHOD']['topk']
         )
 
-    json.dump(sim_filepath_dict, open(os.path.join(cfg['savedir'], 'sim_filepath_dict.json'), 'w'), indent=4)
+    json.dump(sim_filepath_dict, open(os.path.join(cfg['savedir'], f'sim_filepath_top{cfg["METHOD"]["topk"]}_dict.json'), 'w'), indent=4)
 
     # run
     make_fake_title(

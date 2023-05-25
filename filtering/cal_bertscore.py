@@ -21,9 +21,7 @@ def run(args):
     for sim_id, news_id in tqdm(zip(df['sim_news_id'].tolist(), df.index), total = len(df), desc=">>> preprocessing data frame"):
         df.loc[news_id, 'sim_news_title'] = df.loc[sim_id, 'original_title']
         df.loc[news_id, 'sim_news_content'] = df.loc[sim_id, 'content']
-    
-    df = df[:100]
-    
+        
     ## 1. (ref) original content vs (cand) original title
     print(">>> Original Content vs Original Title")
     score = get_bertscore(df['content'].tolist(), df['original_title'].tolist())
@@ -68,7 +66,7 @@ def run(args):
     # #---- save score as csv
     # os.makedirs(args.save_path, exist_ok = True)
     # save_path = os.path.join(args.save_path, os.path.splitext(args.data_path)[0])
-    # df_filtered.to_csv(save_path+'_filtered.csv', index = False)
+    # df_filtered.to_csv(save_path+'_filtered.csv', index = False) 
     df['news_id'] = df.index
     # sort column names
     df = df[['news_id', 'original_title', 'content',  'sim_news_id', 'sim_news_title', 'sim_news_content', 'bait_title', 'org_org_bertscore', 'org_fake_bertscore', 'sim_sim_bertscore', 'sim_fake_bertscore']]
