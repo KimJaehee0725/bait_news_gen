@@ -150,10 +150,22 @@ python test.py --base_config ./configs/{새로운 config}.yaml
 
 ## 데이터 예시
 
-#### fake_original.csv 
+#### fake_original.csv  
+
 news_id	| original_title | original_content	| sim_news_id| fake_title| category| label |	
 ---|:---:|:---:|:---:|:---:|:---:|:---:
 
 #### fake_topk.csv
+##### ex) fake_top1.csv
 news_id	| original_title | original_content	| sim_news_id| fake_title| category| label |sim_news_title |sim_news_content |	
 ---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:
+
+#### fake_topk_threshold_under_threshold_upper.csv
+##### ex) fake_top1_90_99.csv
+news_id	| original_title | original_content	| sim_news_id| fake_title| category| label |sim_news_title |sim_news_content |filter_bertscore |
+---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:
+
+#### fake_topk_threshold_under_threshold_upper_eval.csv
+##### ex) fake_top1_90_99_eval.csv
+news_id	| original_title | original_content	| sim_news_id| fake_title| category| label |sim_news_title |sim_news_content |filter_bertscore |org_org_bertscore |org_fake_bertscore |sim_sim_bertscore |sim_fake_bertscore |
+---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:
