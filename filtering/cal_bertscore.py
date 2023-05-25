@@ -75,9 +75,7 @@ def run(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_path", type=str, default = "/workspace/code/bait_news_gen/data/Fake/tfidf_full_full_all/generated/fake_top3.csv")
-    parser.add_argument("--save_path", type=str, default = "/workspace/code/bait_news_gen/data/Fake/tfidf_full_full_all/filtered")
-    parser.add_argument("--threshold", type=float, default = 1.0)
+    parser.add_argument("--data_path", type=str, default = "/workspace/codes/02_DSBA_Project/bait_news_gen/data/Fake/content_chunking_forward/generated/fake_top3.csv")
     args = parser.parse_args()
 
     args.model_name = 'klue/roberta-large'
