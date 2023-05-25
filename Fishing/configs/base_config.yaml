@@ -1,14 +1,14 @@
-MODE:
-    test_list:
-        - test_News_Base
-        - test_News_Auto  
+# MODE:
+#     test_list:
+#         - test_News_Base
+#         - test_News_Auto  
 
 
 DATASET:
-    data_path: ../data/Part1 # News + Direct ../data/original
-    bait_path: None
+    data_path: /root/code/bait_news_gen/data/ # all data folder
     max_word_len: 512
-    sort: News_Auto
+    fake_path: None # which Auto
+    fake_name: None # 생성된 파일이름
 
 
 TRAIN:
@@ -34,4 +34,4 @@ TEST:
     saved_model_path : None
 
 RESULT:
-    savedir: ../saved_model
+    savedir: ../results

@@ -60,7 +60,7 @@ def training(model, num_training_steps: int, trainloader, validloader, criterion
         for inputs, targets in trainloader:
             # batch
             inputs, targets = convert_device(inputs, device), targets.to(device)
-
+            
             data_time_m.update(time.time() - end)
 
             # optimizer condition

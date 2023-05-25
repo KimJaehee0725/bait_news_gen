@@ -1,5 +1,3 @@
-### dataset class 
-
 import torch
 from torch.utils.data import Dataset
 import json 
@@ -10,33 +8,50 @@ from typing import Union, Tuple
 import logging
 import random
 from tqdm import tqdm
+from sklearn.model_selection import StratifiedShuffleSplit
 
-TRAIN_DATA_SIZE = 40_000
-VAL_DATA_SIZE = 35_000
-TEST_DATA_SIZE = 35_000
+import pandas as pd
 
 _logger = logging.getLogger('train')
+def sampling_data(file_df) :
+    """
+    train : 40_000
+    validation : 13_000
+    test : 13_000
+    """
+    train_sampler = StratifiedShuffleSplit(n_splits=1, test_size=40_000, random_state=42)
+    train_sampler = train_sampler.split(file_df, file_df['category'])
+    dropped_idx, selected = next(train_sampler)
+    train_df = file_df.iloc[selected].reset_index(drop=True)
+    dropped_df = file_df.iloc[dropped_idx].reset_index(drop=True)
+
+    valid_sampler = StratifiedShuffleSplit(n_splits=1, test_size=13_000, random_state=42)
+    valid_sampler = valid_sampler.split(dropped_df, dropped_df['category'])
+    dropped_idx, selected = next(valid_sampler)
+    valid_df = dropped_df.iloc[selected].reset_index(drop=True)
+    test_df = dropped_df.iloc[dropped_idx].reset_index(drop=True)
+    return train_df, valid_df, test_df
 
 class BaitDataset(Dataset):
-    def __init__(self, config, split, tokenizer):
+    def __init__(self,config, split, tokenizer):
         
         self.tokenizer = tokenizer
         self.max_len = config['max_word_len']
-        self.vocab = self.tokenizer.get_vocab() #monologg/kobert
 
-        # special token index
-        self.pad_idx = self.tokenizer.pad_token_id
-        self.cls_idx = self.tokenizer.cls_token_id
-        self.original_title, self.original_body, self.original_title_num, self.original_file_path = self.load_dataset(data_dir=config['data_path'], bait_dir=config['bait_path'], sort=config['sort'], split=split)
+        self.id_list, self.title_list, self.body_list, self.label_list = self.load_dataset(
+            data_dir=config['data_path'], 
+            fake_path=config['fake_path'],
+            fake_name=config['fake_name'],  
+            split=split
+            )
 
     def __len__(self):
-        return len(self.original_title_num)
+        return len(self.id_list)
 
     def __getitem__(self, index):
-        news_id = self.original_title_num[index]
-        title = self.original_title[news_id]
-        body = self.original_body[news_id]
-        path = self.original_file_path[news_id]
+        title = self.title_list[index] 
+        body = self.body_list[index] 
+        label = self.label_list[index]
 
         encoding = self.tokenizer.encode_plus( # automatically pad first
             text = title,
@@ -49,138 +64,49 @@ class BaitDataset(Dataset):
             truncation=True
         )
         
-        label = 1 if ('Base' in path) or ("Auto" in path) else 0 #!base
         doc = {}
         doc['input_ids']=encoding['input_ids'].flatten()
         doc['attention_mask']=encoding['attention_mask'].flatten()
 
         return doc, label
 
-    def load_dataset(self, data_dir, bait_dir, sort, split) -> Tuple[dict, dict, dict, dict]:
-        _logger.info(f'load {split} raw data')
+
+    def load_dataset(self, data_dir, fake_path, fake_name, split) -> Tuple[dict, dict, dict, dict]:
         
-        if 'test' not in split:
-            data_name = sort.split(sep='_') #['News', 'Base']
-        else:
-            data_name = split.split(sep='_') 
-            data_name.pop(0) #['test','News', 'Base'] -> ['News','Base'] 리스트 형태 유지
-            split = 'test'
+        _logger.info(f'load {os.path.join(fake_path, fake_name)} raw data')
+        
+        data_df = pd.DataFrame()
+        
+        real_dir = data_dir + 'Real'
+        bait_dir = os.path.join(data_dir, fake_path)
+        if not os.path.exists(os.path.join(bait_dir, 'train.csv')):
+            self.split_dataset(bait_dir, fake_name)
 
-        _logger.info(f"Get Category Ratio and Stratified Sampling")
-        self.train_category_num, self.val_category_num, self.test_category_num = self.get_category_ratio(os.path.join(data_dir, 'train', 'News'))
-
-        data_path = []
-        for data in data_name:
-            if data == 'Auto':
-                train_dir = bait_dir
-            else:
-                train_dir = data_dir
-
+        for dir in [real_dir, bait_dir]:
             if split == 'train':
-                for cate in list(self.train_category_num.keys()):
-                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:self.train_category_num[cate]]
+                df = pd.read_csv(os.path.join(dir, 'train.csv')) #data load
+
             elif split == 'validation':
-                for cate in list(self.val_category_num.keys()):
-                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:self.val_category_num[cate]]
+                df = pd.read_csv(os.path.join(dir, 'val.csv'))
+
             elif split == 'test':
-                for cate in list(self.test_category_num.keys()):
-                    data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:self.test_category_num[cate]]
-
-            # data_path = data_path + glob(os.path.join(train_dir, split, data, '*/*'))                             
-
-        news_data_path = [path for path in data_path if 'News' in path]
-        bait_data_path = [path for path in data_path if 'News' not in path]
-
-        # get news data
-        news_title = {}
-        news_body = {}
-        news_title_num = {}
-        news_file_path = {}
-        for num, filename in tqdm(enumerate(news_data_path), desc = f'Load Data {split} | News : ', total=len(news_data_path)) :
-            news = json.load(open(filename,'r'))
-            news_id = news['sourceDataInfo']['newsID'] + "_news" #데이터명
-            news_title[news_id] = news['sourceDataInfo']['newsTitle']
-            news_body[news_id] = news['sourceDataInfo']['newsContent']
-            news_title_num[num] = news_id
-            news_file_path[news_id] = filename
-
-        news_len = len(news_title_num)
-        # get bait data
-        bait_title = {}
-        bait_body = {}
-        bait_title_num = {}
-        bait_file_path = {}
-        for num, filename in tqdm(enumerate(bait_data_path), desc = f'Load Data {split} | Bait : ', total=len(bait_data_path)) :
-            news = json.load(open(filename,'r'))
-            news_id = news['sourceDataInfo']['newsID'] + "_bait" #데이터명
-            bait_title[news_id] = news['labeledDataInfo']['newTitle']
-            bait_body[news_id] = news['sourceDataInfo']['newsContent']
-            bait_title_num[num + news_len] = news_id
-            bait_file_path[news_id] = filename
-
-        total_title = {**news_title, **bait_title}
-        total_body = {**news_body, **bait_body}
-        total_title_num = {**news_title_num, **bait_title_num}
-        total_file_path = {**news_file_path, **bait_file_path}
-
-        return total_title, total_body, total_title_num, total_file_path
-    
-    def load_data_path(self, data_dir, bait_dir, sort, split) :
-        _logger.info(f'load {split} raw data')
-        
-        if 'test' not in split:
-            data_name = sort.split(sep='_') #['News', 'Direct']
-        else:
-            data_name = split.split(sep='_') 
-            data_name.pop(0) #['test','News', 'Direct'] -> ['News','Direct'] 리스트 형태 유지
-            split = 'test'
-
-        train_category_num, val_category_num, test_category_num = self.get_category_ratio(os.path.join(data_dir, 'train', 'News'))
-        self.category_num = {'train' : train_category_num, 'validation' : val_category_num, 'test' : test_category_num}
-        data_path = []
-        for data in data_name :
-            if data == 'Auto':
-                train_dir = bait_dir
-            else:
-                train_dir = data_dir
-
-            for cate in list(self.category_num[split].keys()):
-                data_path = data_path + glob(os.path.join(train_dir, split, data, cate, "*"))[:self.category_num[split][cate]]
-
-        return data_path
+                df = pd.read_csv(os.path.join(dir, 'test.csv'))
+            
+            data_df = pd.concat([data_df,df], ignore_index=True) #train data
 
 
-    def get_category_ratio(self, path_to_category) -> Tuple[dict, dict, dict]:
-        category = {}
-        categories = os.listdir(path_to_category)
-        for cat in categories:
-            category[cat] = len(os.listdir(os.path.join(path_to_category, cat)))
+        print(f'{split} : ', len(data_df))
 
-        ## get ratio
-        total = sum(category.values())
-        for cat in category:
-            category[cat] = category[cat]/total
-        
-        _logger.info(f"Category Ratio : {category}")
-        
-        train_category_num = {cat : int(TRAIN_DATA_SIZE * category[cat]) for cat in category}
-        val_category_num = {cat : int(VAL_DATA_SIZE * category[cat]) for cat in category}
-        test_category_num = {cat : int(TEST_DATA_SIZE * category[cat]) for cat in category}
+        id_list = list(data_df['news_id'])
+        title_list = list(data_df['original_title']) + list(data_df['bait_title'])
+        body_list = list(data_df['content'])
+        label_list = list(data_df['label'])
 
-        return train_category_num, val_category_num, test_category_num
-    
-    def load_bait_news_info(self, data_dir, bait_dir, split = "train") -> dict:
-        bait_data_path = self.load_data_path(data_dir, bait_dir, 'Auto', split)
-        DATA_LIST = ['train', 'validation', 'test']
-        bait_title = {}
-        bait_file_path = {}
-        news_title = {}
-        for split in DATA_LIST:
-            for num, filename in tqdm(enumerate(bait_data_path), desc = f'Load Data {split} | Bait : ', total=len(bait_data_path)) :
-                news = json.load(open(filename,'r'))
-                news_id = news['sourceDataInfo']['newsID'] #데이터명
-                bait_title[news_id] = news['labeledDataInfo']['newTitle']
-                news_title[news_id] = news['sourceDataInfo']['newsTitle']
-                bait_file_path[news_id] = filename
+        return id_list, title_list, body_list, label_list
 
-        return bait_title, news_title, bait_file_path
+    def split_dataset(self, data_dir, fake_name) :
+        data = pd.read_csv(os.path.join(data_dir, fake_name))
+        train_df, valid_df, test_df = sampling_data(data)
+        train_df.to_csv(os.path.join(data_dir, 'train.csv'), index=False)
+        valid_df.to_csv(os.path.join(data_dir, 'val.csv'), index=False)
+        test_df.to_csv(os.path.join(data_dir, 'test.csv'), index=False)
