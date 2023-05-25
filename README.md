@@ -147,3 +147,13 @@ bait_path : 새로운 Auto 경로로 수정 (나머지 항목 수정 필요x)
 ```
 python test.py --base_config ./configs/{새로운 config}.yaml
 ```
+
+## 데이터 예시
+
+#### fake_original.csv 
+news_id	| original_title | original_content	| sim_news_id| fake_title| category| label |	
+---|:---:|:---:|:---:|:---:|:---:|:---:
+
+#### fake_topk.csv
+news_id	| original_title | original_content	| sim_news_id| fake_title| category| label |sim_news_title |sim_news_content |	
+---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:
