@@ -29,7 +29,11 @@ def sampling_data(file_df) :
     valid_sampler = valid_sampler.split(dropped_df, dropped_df['category'])
     dropped_idx, selected = next(valid_sampler)
     valid_df = dropped_df.iloc[selected].reset_index(drop=True)
-    test_df = dropped_df.iloc[dropped_idx].reset_index(drop=True)
+
+    test_sampler = StratifiedShuffleSplit(n_splits=1, test_size=13_000, random_state=42)
+    test_sampler = test_sampler.split(dropped_df, dropped_df['category'])
+    dropped_idx, selected = next(test_sampler)
+    test_df = dropped_df.iloc[selected].reset_index(drop=True)
     return train_df, valid_df, test_df
 
 class BaitDataset(Dataset):
