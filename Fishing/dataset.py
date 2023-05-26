@@ -98,9 +98,13 @@ class BaitDataset(Dataset):
         print(f'{split} : ', len(data_df))
 
         id_list = list(data_df['news_id'])
-        title_list = list(data_df['original_title']) + list(data_df['bait_title'])
-        body_list = list(data_df['content'])
-        label_list = list(data_df['label'])
+        title_list = []
+        label_list = []
+        for row in tqdm(data_df.iterrows(), desc = 'load data') :
+            row = row[1]
+            title_list.append(row['original_title']) if row['label'] == 1 else title_list.append(row['fake_title'])
+            label_list.append(row['label'])
+        body_list = list(data_df['original_content'])
 
         return id_list, title_list, body_list, label_list
 
