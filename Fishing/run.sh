@@ -1,4 +1,4 @@
-fake_path_list="Fake/auto/type"
+fake_path_list="Fake/tfidf_full_full_all/generated"
 saved_model_path='None'
 
 for fake_path in $fake_path_list
