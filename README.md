@@ -5,9 +5,9 @@
 ├── data : 
 │   ├── T5 : train_t5.csv
 │   ├── Real :
-│   │   ├── train_news.csv
-│   │   ├── val_news.csv
-│   │   └── test_news.csv
+│   │   ├── train.csv
+│   │   ├── val.csv
+│   │   └── test.csv
 │   └── Fake :
 │       ├── fake_original.csv 
 │       ├── content_chunking_forward
