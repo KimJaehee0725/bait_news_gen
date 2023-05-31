@@ -1,4 +1,4 @@
-fake_path_list="Fake/tfidf_full_full_all/generated"
+fake_path_list="Fake/tfidf/filtered Fake/content_chunking_backward/filtered Fake/content_chunking_forward/filtered Fake/content_rotation_backward/filtered" 
 saved_model_path='None'
 
 for fake_path in $fake_path_list

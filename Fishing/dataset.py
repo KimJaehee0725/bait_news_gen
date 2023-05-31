@@ -56,7 +56,6 @@ class BaitDataset(Dataset):
         title = self.title_list[index] 
         body = self.body_list[index] 
         label = self.label_list[index]
-
         encoding = self.tokenizer.encode_plus( # automatically pad first
             text = title,
             text_pair = body,
@@ -81,7 +80,7 @@ class BaitDataset(Dataset):
         
         data_df = pd.DataFrame()
         
-        real_dir = os.path.join(data_dir, 'Real') #이거 나만 오류나?
+        real_dir = os.path.join(data_dir, 'Real')
         bait_dir = os.path.join(data_dir, fake_path)
         if not os.path.exists(os.path.join(bait_dir, 'train.csv')):
             self.split_dataset(bait_dir, fake_name)
