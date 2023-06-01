@@ -46,18 +46,29 @@ def find_token_for_fake_news(df):
     df['tokens_for_fake'] = tokens_for_fakenews
     return df
 
+# 제목과 본문내 각 문장 사이의 BERTScore를 구함
 def get_max_score(df, real=True):
     print(">>> Get Max Score")
     max_score = []
+    content_n_list = []
+    title_n_list = []
+    len_list = []
     for idx in tqdm(range(len(df))):
         content_sentences = kss.split_sentences(df.loc[idx, 'original_content'])
+        content_n_list += content_sentences
         if real == True:
             title_duplicated = [df.loc[idx, 'original_title']] * len(content_sentences)
         else:
             title_duplicated = [df.loc[idx, 'fake_title']] * len(content_sentences)
-        bert_scorer = BERTScore(model_name_or_path = 'klue/roberta-large')
-        score = bert_scorer.score(title_duplicated, content_sentences)
-        max_score.append(max(score))
+        title_n_list += title_duplicated
+        len_list.append(len(content_sentences))
+    bert_scorer = BERTScore(model_name_or_path = 'klue/roberta-large')
+    score = bert_scorer.score(content_n_list, title_n_list)
+    
+    start_idx = 0
+    for length in tqdm(len_list):
+        max_score.append(max(score[start_idx : start_idx+length]))
+        start_idx += length
     df['max_score'] = max_score
     return df
 
@@ -65,12 +76,12 @@ def get_max_score(df, real=True):
 def run(args):
     df = pd.read_csv(args.data_path)
 
-    df_eval_token = find_token_for_fake_news(df)
-    df_eval_bertscore = get_max_score(df_eval_token, real=args.real)
-    df_eval_bertscore.to_csv(os.path.join(args.savedir, f"exp.csv"), index=False)
+    df_eval = find_token_for_fake_news(df)
+    df_eval = get_max_score(df_eval, real=args.real)
+    df_eval.to_csv(os.path.join(args.savedir, f"exp.csv"), index=False)
     
-    fake_news_cnt = len(df[df_eval_bertscore['fake']==1])
-    bert_score_mean = df_eval_bertscore['max_score'].mean()
+    fake_news_cnt = len(df[df_eval['fake']==1])
+    bert_score_mean = df_eval['max_score'].mean()
     
     metrics = {
         'false_negative' : len(df) - fake_news_cnt,
@@ -81,8 +92,8 @@ def run(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
-    parser.add_argument('--data_path', type=str, default='../data/Fake/content_rotation_forward/filtered/fake_top1_90_99.csv')
-    parser.add_argument('--savedir', type=str, default='../data/Fake/content_rotation_forward/evaluation_FN')
+    parser.add_argument('--data_path', type=str, default='../data/Fake/content_rotation_backward/filtered/fake_top1_90_99.csv')
+    parser.add_argument('--savedir', type=str, default='../data/Fake/content_rotation_backward/evaluation_FN')
     parser.add_argument('--real', type=bool, default=False)
 
     args = parser.parse_args()
