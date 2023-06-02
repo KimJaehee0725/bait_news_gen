@@ -64,7 +64,7 @@ def run(cfg):
         #* save directory Fake/auto
         savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['fake_path'].split('/')[1], cfg['DATASET']['fake_name'].split('.')[0])
                                 # 학습시 : results / 학습 모델 이름 / topN 종류
-                                # 테스트시 : results / 학습 모델 이름 / topN 종류 / 테스트 데이터 이름 / topN 종류
+                                # 테스트시 : results / 학습 모델 이름 / 학습 데이터 topN 종류 / 테스트 데이터 이름 / 테스트 데이터 topN 종류
         print('model savedir : ', savedir)
 
         os.makedirs(savedir, exist_ok=True)
@@ -141,7 +141,7 @@ def run(cfg):
         #* save directory Fake/auto
         savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['fake_path'].split('/')[1], cfg['DATASET']['fake_name'].split('.')[0], cfg['DATASET']['fake_path'].split('/')[1], cfg['DATASET']['fake_name'].split('.')[0])
                                 # 학습시 : results / 학습 모델 이름 / topN 종류
-                                # 테스트시 : results / 학습 모델 이름 / topN 종류 / 테스트 데이터 이름 / topN 종류
+                                # 테스트시 : results / 학습 모델 이름 / 학습 데이터 topN 종류 / 테스트 데이터 이름 / 테스트 데이터 topN 종류
         print('result savedir : ', savedir)
         os.makedirs(savedir, exist_ok=True)
 
@@ -149,9 +149,9 @@ def run(cfg):
         #* load MODEL -------------------
 
         #* save directory Fake/auto
-        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['TEST']['saved_model_path'].split('/')[-2], cfg['DATASET']['fake_name'].split('.')[0], cfg['DATASET']['fake_path'].split('/')[1], cfg['DATASET']['fake_name'].split('.')[0])
+        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['TEST']['saved_model_path'].split('/')[-3], cfg['TEST']['saved_model_path'].split('/')[-2], cfg['DATASET']['fake_path'].split('/')[1], cfg['DATASET']['fake_name'].split('.')[0])
                                 # 학습시 : results / 학습 모델 이름 / topN 종류
-                                # 테스트시 : results / 학습 모델 이름 / topN 종류 / 테스트 데이터 이름 / topN 종류
+                                # 테스트시 : results / 학습 모델 이름 / 학습 데이터 topN 종류 / 테스트 데이터 이름 / 테스트 데이터 topN 종류
         print('result savedir : ', savedir)
         os.makedirs(savedir, exist_ok=True)
 
@@ -218,7 +218,13 @@ if __name__=='__main__':
     cfg['DATASET']['fake_name'] = args.fake_name
     cfg['TEST']['saved_model_path'] = args.saved_model_path
 
-    savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['fake_path'].split('/')[1])
+    if cfg['TEST']['saved_model_path'] == 'None':
+        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['DATASET']['fake_path'].split('/')[1], cfg['DATASET']['fake_name'].split('.')[0])
+        # results / 학습 모델 이름 / topN 종류
+    else:
+        savedir = os.path.join(cfg['RESULT']['savedir'], cfg['TEST']['saved_model_path'].split('/')[-3], cfg['TEST']['saved_model_path'].split('/')[-2], cfg['DATASET']['fake_path'].split('/')[1], cfg['DATASET']['fake_name'].split('.')[0])
+        # results / 학습 모델 이름 / topN 종류 / 테스트 데이터 이름 / topN 종류
+
     os.makedirs(savedir, exist_ok=True)
     
     logging.basicConfig(
