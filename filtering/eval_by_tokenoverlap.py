@@ -84,7 +84,7 @@ def run(args):
         df_eval = get_max_score(df_eval, real=args.real)
     
     # -------filtering
-    df_save_path = os.path.join('../data/Fake',args.method, 'filtered', os.path.basename(args.data_path))
+    df_save_path = os.path.join('../data/Fake',args.method, 'filtered', os.path.basename(args.data_path).split('.')[0])
     df_filtered = df_eval[df_eval['fake']==1]
     df_filtered.to_csv(df_save_path+'_token.csv', index = False) 
     
@@ -97,13 +97,15 @@ def run(args):
     metrics['false_negative'] = len(df) - fake_news_cnt
     metrics['fake_news'] = fake_news_cnt
 
-    json.dump(metrics, open(os.path.join(args.savedir, f"exp_metrics.json"),'w'), indent='\t')
+    json.dump(metrics, 
+              open(os.path.join(args.savedir, f"exp_metrics_{os.path.basename(args.data_path).split('.')[0]}.json"),'w'), 
+              indent='\t')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
 
     parser.add_argument('--method', type=str, default='content_chunking_backward')
-    parser.add_argument('--file_name', type=str, default='fake_top1.csv')
+    parser.add_argument('--file_name', type=str, default='fake_top3.csv')
     parser.add_argument('--real', type=bool, default=False)
     parser.add_argument('--BertScore', type=bool, default=False)
     
