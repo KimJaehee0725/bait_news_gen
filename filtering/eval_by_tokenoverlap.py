@@ -15,7 +15,10 @@ def clean_text(text):
 def find_token_for_fake_news(df):
     mecab = Mecab()
     titles = df['fake_title'].tolist()
-    contents = df['original_content'].tolist()
+    if 'content' in df.columns:
+        contents = df['content'].tolist()
+    if 'original_content' in df.columns:
+        contents = df['original_content'].tolist()
 
     title_n_list = []
     content_n_list = []
@@ -63,7 +66,7 @@ def get_max_score(df, real=True):
         title_n_list += title_duplicated
         len_list.append(len(content_sentences))
     bert_scorer = BERTScore(model_name_or_path = 'klue/roberta-large')
-    score = bert_scorer.score(content_n_list, title_n_list)
+    score = bert_scorer.score(content_n_list, title_n_list, batch_size=64)
     
     start_idx = 0
     for length in tqdm(len_list):
@@ -74,29 +77,40 @@ def get_max_score(df, real=True):
 
 
 def run(args):
+    metrics = {}
     df = pd.read_csv(args.data_path)
-
     df_eval = find_token_for_fake_news(df)
-    df_eval = get_max_score(df_eval, real=args.real)
-    df_eval.to_csv(os.path.join(args.savedir, f"exp.csv"), index=False)
+    if args.BertScore == True:
+        df_eval = get_max_score(df_eval, real=args.real)
     
-    fake_news_cnt = len(df[df_eval['fake']==1])
-    bert_score_mean = df_eval['max_score'].mean()
+    # -------filtering
+    df_save_path = os.path.join('../data/Fake',args.method, 'filtered', os.path.basename(args.data_path))
+    df_filtered = df_eval[df_eval['fake']==1]
+    df_filtered.to_csv(df_save_path+'_token.csv', index = False) 
     
-    metrics = {
-        'false_negative' : len(df) - fake_news_cnt,
-        'fake_news' : fake_news_cnt,
-        'bert_score_mean' : bert_score_mean
-    }
+    # -------save results
+    fake_news_cnt = len(df_filtered)
+    if args.BertScore == True:
+        bert_score_mean = df_eval['max_score'].mean()
+        metrics['bert_score_mean'] = bert_score_mean
+
+    metrics['false_negative'] = len(df) - fake_news_cnt
+    metrics['fake_news'] = fake_news_cnt
+
     json.dump(metrics, open(os.path.join(args.savedir, f"exp_metrics.json"),'w'), indent='\t')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
-    parser.add_argument('--data_path', type=str, default='../data/Fake/content_rotation_backward/filtered/fake_top1_90_99.csv')
-    parser.add_argument('--savedir', type=str, default='../data/Fake/content_rotation_backward/evaluation_FN')
-    parser.add_argument('--real', type=bool, default=False)
 
+    parser.add_argument('--method', type=str, default='content_chunking_backward')
+    parser.add_argument('--file_name', type=str, default='fake_top1.csv')
+    parser.add_argument('--real', type=bool, default=False)
+    parser.add_argument('--BertScore', type=bool, default=False)
+    
     args = parser.parse_args()
+    # file_path에 맞춰줘야 함.
+    args.data_path = os.path.join('/workspace/code/bait_news_gen/data/Fake',args.method, 'generated', args.file_name)
+    args.savedir = os.path.join('/workspace/code/bait_news_gen/data/Fake', args.method, 'eval_FN')
     os.makedirs(args.savedir, exist_ok=True)
     run(args)
 
