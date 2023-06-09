@@ -58,8 +58,8 @@ class BaitDataset(Dataset):
         label = self.label_list[index]
 
         encoding = self.tokenizer.encode_plus( # automatically pad first
-            text = title,
-            text_pair = body,
+            text = str(title),
+            text_pair = str(body),
             add_special_tokens=True,
             max_length=self.max_len,
             padding='max_length',
