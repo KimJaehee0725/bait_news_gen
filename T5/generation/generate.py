@@ -67,7 +67,7 @@ if __name__== "__main__":
     parser = argparse.ArgumentParser()
     
     # data path
-    parser.add_argument("--index_rank", type=str, default='top3') 
+    parser.add_argument("--index_rank", type=str, default='top1') 
     
     # model path
     parser.add_argument("--model_path", type=str, default='../finetuning/Models/ke-t5-base-newslike_epoch7_30k')

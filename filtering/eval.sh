@@ -1,4 +1,4 @@
-method_list="content_chunking_backward content_chunking_forward content_rotation_backward content_rotation_forward" 
+method_list="content_chunking_backward content_chunking_forward content_rotation_backward content_rotation_forward content_summarization_backward content_summarization_forward" 
 
 for method in $method_list
 do

@@ -56,9 +56,10 @@ class BaitDataset(Dataset):
         title = self.title_list[index] 
         body = self.body_list[index] 
         label = self.label_list[index]
+
         encoding = self.tokenizer.encode_plus( # automatically pad first
-            text = str(title),
-            text_pair = str(body),
+            text = title,
+            text_pair = body,
             add_special_tokens=True,
             max_length=self.max_len,
             padding='max_length',
@@ -80,7 +81,7 @@ class BaitDataset(Dataset):
         
         data_df = pd.DataFrame()
         
-        real_dir = os.path.join(data_dir, 'Real')
+        real_dir = data_dir + 'Real'
         bait_dir = os.path.join(data_dir, fake_path)
         if not os.path.exists(os.path.join(bait_dir, 'train.csv')):
             self.split_dataset(bait_dir, fake_name)
@@ -107,7 +108,11 @@ class BaitDataset(Dataset):
             row = row[1]
             title_list.append(row['original_title']) if row['label'] == 1 else title_list.append(row['fake_title'])
             label_list.append(row['label'])
-        body_list = list(data_df['original_content'])
+        
+        if 'content' in df.columns:
+            body_list = list(data_df['content'])
+        if 'original_content' in df.columns:
+            body_list = list(data_df['original_content'])
 
         return id_list, title_list, body_list, label_list
 

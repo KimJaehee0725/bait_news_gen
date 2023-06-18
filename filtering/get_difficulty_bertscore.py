@@ -35,7 +35,7 @@ def sampling_data(file_df, sample_size = 50_000) :
 def run(args):
     def get_bertscore(ref, cand) :
         bert_scorer = BERTScore(model_name_or_path = args.model_name)
-        score = bert_scorer.score(ref, cand)
+        score = bert_scorer.score(ref, cand, batch_size=64)
         return score
 
     df = pd.read_csv(args.data_path)
@@ -112,7 +112,7 @@ def run(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_path", type=str, default = "../data/Fake/tfidf/generated/fake_top3.csv")
+    parser.add_argument("--data_path", type=str, default = "../data/Fake/content_summarization_backward/filtered/fake_top1_90_99.csv")
     args = parser.parse_args()
 
     args.model_name = 'klue/roberta-large'

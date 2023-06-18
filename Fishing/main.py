@@ -207,8 +207,8 @@ def run(cfg):
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
     parser.add_argument('--base_config', type=str, default='configs/base_config.yaml', help='exp config file')    
-    parser.add_argument('--fake_path', type=str, default='Fake/tfidf/generated')
-    parser.add_argument('--fake_name', type=str, default='fake_top1.csv')
+    parser.add_argument('--fake_path', type=str, default='Fake/content_summarization_forward/filtered')
+    parser.add_argument('--fake_name', type=str, default='fake_top1_90_99.csv')
     parser.add_argument('--saved_model_path', type=str, default='None', help='saved_model_path')
 
     args = parser.parse_args()

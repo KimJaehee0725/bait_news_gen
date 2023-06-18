@@ -37,7 +37,7 @@ def run(args):
 
     #---- filter by threshold
     # df_filtered = df[args.threshold_under < df['BERTScore'] < args.threshold_upper]
-    df_filtered = df[args.threshold_under < df['filter_bertscore'] ][df['filter_bertscore'] < args.threshold_upper]
+    df_filtered = df[args.threshold_under <= df['filter_bertscore']][df['filter_bertscore'] <= args.threshold_upper]
 
     #---- save score as csv
     os.makedirs(args.save_path, exist_ok = True)
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_path", type=str, default = "/workspace/code/bait_news_gen/data/Fake/tfidf_content_content_all/filtered")
     # parser.add_argument("--file_name", type=str, default = "fake_top3.csv")
     parser.add_argument("--threshold_under", type=float, default = 0.0)
-    parser.add_argument("--threshold_upper", type=float, default = 0.99)
+    parser.add_argument("--threshold_upper", type=float, default = 1)
     args = parser.parse_args()
 
     args.max_word_len = 128
