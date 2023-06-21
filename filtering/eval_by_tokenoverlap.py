@@ -105,14 +105,14 @@ def run(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bait News Generation')
 
-    parser.add_argument('--method', type=str, default='full_rotation_forward')
-    parser.add_argument('--file_name', type=str, default='fake_top1.csv')
+    parser.add_argument('--method', type=str, default='tfidf')
+    parser.add_argument('--file_name', type=str, default='fake_top1_90_99.csv')
     parser.add_argument('--real', type=bool, default=False)
     parser.add_argument('--BertScore', type=bool, default=False)
     
     args = parser.parse_args()
     # file_path에 맞춰줘야 함.
-    args.data_path = os.path.join('/workspace/code/bait_news_gen/data/Fake',args.method, 'generated', args.file_name)
+    args.data_path = os.path.join('/workspace/code/bait_news_gen/data/Fake',args.method, 'filtered', args.file_name)
     args.savedir = os.path.join('/workspace/code/bait_news_gen/data/Fake', args.method, 'eval_FN')
     os.makedirs(args.savedir, exist_ok=True)
     run(args)

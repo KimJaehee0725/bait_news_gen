@@ -56,7 +56,6 @@ class BaitDataset(Dataset):
         title = self.title_list[index] 
         body = self.body_list[index] 
         label = self.label_list[index]
-
         encoding = self.tokenizer.encode_plus( # automatically pad first
             text = title,
             text_pair = body,
@@ -109,10 +108,7 @@ class BaitDataset(Dataset):
             title_list.append(row['original_title']) if row['label'] == 1 else title_list.append(row['fake_title'])
             label_list.append(row['label'])
         
-        if 'content' in df.columns:
-            body_list = list(data_df['content'])
-        if 'original_content' in df.columns:
-            body_list = list(data_df['original_content'])
+        body_list = list(data_df['original_content'])
 
         return id_list, title_list, body_list, label_list
 
