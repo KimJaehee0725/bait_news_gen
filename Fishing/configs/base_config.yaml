@@ -5,15 +5,15 @@
 
 
 DATASET:
-    data_path: /root/code/bait_news_gen/data/ # all data folder
+    data_path: /workspace/code/bait_news_gen/data/ # all data folder    
     max_word_len: 512
     fake_path: None # which Auto
-    fake_name: None # 생성된 파일이름
+    fake_name: fake_top1_90_99.csv # 생성된 파일이름
 
 
 TRAIN:
-    batch_size: 8
-    num_training_steps: 10000
+    batch_size: 4
+    num_training_steps: 5000
     accumulation_steps: 1
     use_wandb: True
 

@@ -1,3 +1,4 @@
+T5/finetuning/Models/
 saved_model/
 wandb/
 __pycache__/
@@ -12,3 +13,4 @@ replacement/get_sim_index_1_to_5.py
 replacement/get_sim_index_topk.py
 replacement/untitled.ipynb  
 filtering/test.ipynb
+results/
